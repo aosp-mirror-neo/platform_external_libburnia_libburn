@@ -1544,6 +1544,28 @@ enum response scsi_error_msg(struct burn_drive *d, unsigned char *sense,
 		else
 			break;
 		goto return_fail;
+	case 0x6F:
+		if (*ascq == 0)
+			sprintf(msg, "Copy protection key exchange failure – Authentication failure");
+		else if (*ascq == 1)
+			sprintf(msg, "Copy protection key exchange failure – Key not present");
+		else if (*ascq == 2)
+			sprintf(msg, "Copy protection key exchange failure – Key not established");
+		else if (*ascq == 3)
+			sprintf(msg, "Read of scrambled sector without authentication");
+		else if (*ascq == 4)
+			sprintf(msg, "Media region code is mismatched to logical unit region");
+		else if (*ascq == 5)
+			sprintf(msg, "Logical unit region must be permanent / Region reset count error");
+		else if (*ascq == 6)
+			sprintf(msg, "Insufficient block count for binding nonce recording");
+		else if (*ascq == 7)
+			sprintf(msg, "Conflict in binding nonce recording");
+		else if (*ascq == 8)
+			sprintf(msg, "Insufficient permission");
+		else
+			break;
+		goto return_fail;
 	case 0x72:
 		if (*ascq == 0)
 			sprintf(msg, "Session fixation error");
