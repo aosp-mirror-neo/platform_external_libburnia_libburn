@@ -53,12 +53,12 @@ dnl It tests whether -Wl,--version-script=... works with the compiler
 AC_DEFUN([LIBBURN_ASSERT_VERS_LIBS],
 [
     libburnia_save_LDFLAGS="$LDFLAGS"
-    LDFLAGS="$LDFLAGS -Wl,--version-script=libburn/libburn.ver"
+    LDFLAGS="$LDFLAGS -Wl,--version-script=$srcdir/libburn/libburn.ver"
     AC_TRY_LINK([#include <stdio.h>], [printf("Hello\n");],
                 [vers_libs_test="yes"], [vers_libs_test="no"])
     if test x$vers_libs_test = xyes
     then
-        LIBLDFLAGS="-Wl,--version-script=libburn/libburn.ver"
+        LIBLDFLAGS="-Wl,--version-script=$srcdir/libburn/libburn.ver"
     fi
     LDFLAGS="$libburnia_save_LDFLAGS"
     AC_SUBST(LIBLDFLAGS)
