@@ -995,10 +995,6 @@ fprintf(stderr, "libburn_DEBUG: buffer sectors= %d  bytes= %d\n",
 
 	/* ts A80412 */
 	if(d->do_stream_recording > 0 && start >= d->stream_recording_start) {
-
-		/* >>> ??? is WRITE12 available ?  */
-			/* >>> ??? inquire feature 107h Stream Writing bit ? */
-
 		scsi_init_command(c, MMC_WRITE_12, sizeof(MMC_WRITE_12));
 		mmc_int_to_four_char(c->opcode + 2, start);
 		mmc_int_to_four_char(c->opcode + 6, len);

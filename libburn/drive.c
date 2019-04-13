@@ -1169,15 +1169,44 @@ enum burn_drive_status burn_drive_get_status(struct burn_drive *d,
 	return d->busy;
 }
 
+
 int burn_drive_set_stream_recording(struct burn_drive *d, int recmode,
                                     int start, int flag)
 {
+#ifndef Libburn_force_stream_recordinG
+	struct burn_feature_descr *descr;
+#endif
 
-	if (recmode == 1)
+	if (recmode == 1) {
+
+#ifdef Libburn_force_stream_recordinG
+
 		d->do_stream_recording = 1;
-	else if (recmode == -1)
+
+#else /* Libburn_force_stream_recordinG */
+
 		d->do_stream_recording = 0;
-	d->stream_recording_start = start;
+		if (burn_drive_has_feature(d, 0x107, &descr, 0)) {
+			if ((descr->data[0] & 1) && (descr->flags & 1))
+				d->do_stream_recording = 1;
+		}
+		if (!d->do_stream_recording) {
+			libdax_msgs_submit(libdax_messenger, d->global_index,
+				0x000201ac,
+				LIBDAX_MSGS_SEV_NOTE, LIBDAX_MSGS_PRIO_HIGH,
+			     "Drive currently does not offer Stream Recording",
+				0, 0);
+		}
+
+#endif /* ! Libburn_force_stream_recordinG */
+
+	} else if (recmode == -1) {
+		d->do_stream_recording = 0;
+	}
+	if (d->do_stream_recording)
+		d->stream_recording_start = start;
+	else
+		d->stream_recording_start = 0;
 	return(1);
 }
 

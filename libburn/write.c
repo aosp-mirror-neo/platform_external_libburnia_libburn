@@ -2925,7 +2925,7 @@ void burn_disc_write_sync(struct burn_write_opts *o, struct burn_disc *disc)
 	struct buffer *buffer_mem = o->drive->buffer;
 	struct burn_session *s;
 	struct burn_track *lt, *t;
-	int first = 1, i, ret, lba, nwa = 0, multi_mem;
+	int first = 1, i, ret, lba, nwa = 0, multi_mem, stream_recording_start;
 	off_t default_size;
 	char msg[80];
 
@@ -2937,12 +2937,13 @@ void burn_disc_write_sync(struct burn_write_opts *o, struct burn_disc *disc)
 	/* ts A61224 */
 	burn_disc_init_write_status(o, disc); /* must be done very early */
 
-	/* ts A80412 , A90227 */
-	d->do_stream_recording = !!o->do_stream_recording;
+	/* ts A80412 , A90227 , B90411 */
 	if (o->do_stream_recording >= 16)
-		d->stream_recording_start = o->do_stream_recording;
+		stream_recording_start = o->do_stream_recording;
 	else
-		d->stream_recording_start = 0;
+		stream_recording_start = 0;
+	burn_drive_set_stream_recording(d, !!o->do_stream_recording,
+					stream_recording_start, 0);
 
 	/* ts A91122 : Get buffer suitable for sources made by
 	               burn_os_open_track_src() */
