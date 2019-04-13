@@ -1196,6 +1196,15 @@ int burn_drive_set_stream_recording(struct burn_drive *d, int recmode,
 				LIBDAX_MSGS_SEV_NOTE, LIBDAX_MSGS_PRIO_HIGH,
 			     "Drive currently does not offer Stream Recording",
 				0, 0);
+		} else if (d->current_profile != 0x12 &&
+			   d->current_profile != 0x41 &&
+			   d->current_profile != 0x43) {
+			d->do_stream_recording = 0;
+			libdax_msgs_submit(libdax_messenger, d->global_index,
+				0x000201ad,
+				LIBDAX_MSGS_SEV_NOTE, LIBDAX_MSGS_PRIO_HIGH,
+			     "Stream Recording suppressed due to medium type",
+				0, 0);
 		}
 
 #endif /* ! Libburn_force_stream_recordinG */
