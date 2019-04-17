@@ -1,7 +1,7 @@
 /* -*- indent-tabs-mode: t; tab-width: 8; c-basic-offset: 8; -*- */
 
 /* Copyright (c) 2004 - 2006 Derek Foreman, Ben Jansens
-   Copyright (c) 2006 - 2016 Thomas Schmitt <scdbackup@gmx.net>
+   Copyright (c) 2006 - 2019 Thomas Schmitt <scdbackup@gmx.net>
    Provided under GPL version 2 or later.
 */
 
@@ -1717,6 +1717,13 @@ static char *scsi_command_name(unsigned int c, int flag)
 
 	}
 	return "(NOT IN LIBBURN COMMAND LIST)";
+}
+
+
+/* ts B90206: Avoid publishing more inner API functions which begin by scsi_ */
+char *spc_command_name(unsigned int c, int flag)
+{
+	return(scsi_command_name(c, flag));
 }
 
 

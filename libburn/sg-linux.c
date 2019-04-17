@@ -1,7 +1,7 @@
 /* -*- indent-tabs-mode: t; tab-width: 8; c-basic-offset: 8; -*- */
 
 /* Copyright (c) 2004 - 2006 Derek Foreman, Ben Jansens
-   Copyright (c) 2006 - 2014 Thomas Schmitt <scdbackup@gmx.net>
+   Copyright (c) 2006 - 2019 Thomas Schmitt <scdbackup@gmx.net>
    Provided under GPL version 2 or later.
 */
 
@@ -2042,7 +2042,7 @@ static void react_on_drive_loss(struct burn_drive *d, struct command *c,
 */
 int sg_issue_command(struct burn_drive *d, struct command *c)
 {
-	int done = 0, no_c_page = 0, i, ret;
+	int done = 0, no_c_page = 0, i, j, ret;
 	int err;
 	time_t start_time;
 	sg_io_hdr_t s;
@@ -2199,6 +2199,24 @@ int sg_issue_command(struct burn_drive *d, struct command *c)
 			        (unsigned int) s.host_status,
 			        (unsigned int) s.driver_status);
 			scsi_log_message(d, fp, msg, 0);
+
+			libdax_msgs_submit(libdax_messenger,
+				 d->global_index, 0x0002010c,
+				 LIBDAX_MSGS_SEV_FATAL, LIBDAX_MSGS_PRIO_HIGH,
+				 msg, 0, 0);
+			sprintf(msg, "Attempted command: %s : ",
+				spc_command_name(
+					(unsigned int) c->opcode[0], 0));
+			for (j = 0; j <16 && j < c->oplen; j++)
+				sprintf(msg + strlen(msg), "%2.2x ",
+					c->opcode[j]);
+			sprintf(msg + strlen(msg), " : dxfer_len= %d",
+				s.dxfer_len);
+			libdax_msgs_submit(libdax_messenger,
+				 d->global_index, 0x0002010c,
+				 LIBDAX_MSGS_SEV_FATAL, LIBDAX_MSGS_PRIO_HIGH,
+				 msg, 0, 0);
+
 			react_on_drive_loss(d, c, fp);
 			{ret = -1; goto ex;}
 		}

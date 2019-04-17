@@ -1,7 +1,7 @@
 /* -*- indent-tabs-mode: t; tab-width: 8; c-basic-offset: 8; -*- */
 
 /* Copyright (c) 2004 - 2006 Derek Foreman, Ben Jansens
-   Copyright (c) 2006 - 2014 Thomas Schmitt <scdbackup@gmx.net>
+   Copyright (c) 2006 - 2019 Thomas Schmitt <scdbackup@gmx.net>
    Provided under GPL version 2 or later.
 */
 
@@ -113,6 +113,9 @@ int scsi_log_message(struct burn_drive *d, void *fp, char * msg, int flag);
 /* ts B00728 */
 int spc_decode_sense(unsigned char *sense, int senselen,
                      int *key, int *asc, int *ascq);
+
+/* ts B90206 */
+char *spc_command_name(unsigned int c, int flag);
 
 /* ts B00808 */
 /** Evaluates outcome of a single SCSI command, eventually logs sense data,
