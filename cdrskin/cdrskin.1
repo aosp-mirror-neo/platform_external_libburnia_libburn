@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH CDRSKIN 1 "Version 1.5.1, Sep 16, 2018"
+.TH CDRSKIN 1 "Version 1.5.1, Apr 17, 2019"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -1470,6 +1470,46 @@ better buffer fills while still avoiding the problem:
 .PP
 Alphabetical list of options which are only intended for very special
 situations and not for  normal use:
+.TP
+.BI \--list_features
+List the SCSI/MMC features which were obtained from the drive when it was
+last acquired or re-assessed. Although this is better readable than the
+raw reply to SCSI command GET CONFIGURATION, the MMC specification text
+is still needed for interpreting it.
+.br
+The list consists of line groups of the form
+.br
+  Code +/- : Name : Version,P/N
+.br
+             Raw feature data bytes as hex numbers
+.br
+             Parsed info as Name=Value pairs
+.br
+The headline is the only one which has no blank at its start.
+Code is given as 16 bit hex number.
+.br
+"+" marks a currently offered feature. "-" marks those which may be offered
+under different circumstances.
+.br
+Name is the feature name as listed in MMC specs.
+.br
+"P" marks persistent features. "N" marks non-persistent features.
+.br
+The Raw data can occupy more than one line. No "=" occurs in such lines.
+If no raw data are present, one line with some blanks is listed instead.
+.br
+The Parsed info shows some extracted field values with names which resemble
+the names used in the MMC description of the particular feature. Parsed info
+lines contain at least one Name=Value pair. More than one line is possible.
+If no parsed info is produced, one line with some blanks is listed instead.
+.br
+Example:
+.br
+  0107 - : Real Time Streaming : 4,N 
+.br
+           1f 00 00 00 
+.br
+           RBCB=1 , SCS=1 , MP2A=1 , WSPD=1 , SW=1
 .TP
 .BI \--abort_handler
 Establish default signal handling not to leave a drive in busy state

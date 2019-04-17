@@ -1,6 +1,6 @@
 
 /*
- cdrskin.c , Copyright 2006-2018 Thomas Schmitt <scdbackup@gmx.net>
+ cdrskin.c , Copyright 2006-2019 Thomas Schmitt <scdbackup@gmx.net>
 Provided under GPL version 2 or later.
 
 A cdrecord compatible command line interface for libburn.
@@ -2904,6 +2904,7 @@ set_dev:;
      printf(" --list_formats     list format descriptors for loaded media.\n");
      printf(" --list_ignored_options list all ignored cdrecord options.\n");
      printf(" --list_speeds      list speed descriptors for loaded media.\n");
+     printf(" --list_features    list SCSI features reported by the drive\n");
      printf(" --long_toc         print overview of media content\n");
      printf(" modesty_on_drive=<options> no writing into full drive buffer\n");
      printf(" --no_abort_handler  exit even if the drive is in busy state\n");
@@ -3409,6 +3410,7 @@ struct CdrskiN {
  int do_atip;
  int do_list_speeds;
  int do_list_formats;
+ int do_list_features;
  int do_cdtext_to_textfile;
  char cdtext_to_textfile_path[Cdrskin_strleN];
  int do_cdtext_to_vt07;
@@ -3676,6 +3678,7 @@ int Cdrskin_new(struct CdrskiN **skin, struct CdrpreskiN *preskin, int flag)
  o->do_atip= 0;
  o->do_list_speeds= 0;
  o->do_list_formats= 0;
+ o->do_list_features= 0;
  o->do_cdtext_to_textfile= 0;
  o->cdtext_to_textfile_path[0]= 0;
  o->do_cdtext_to_vt07= 0;
@@ -5952,6 +5955,128 @@ int Cdrskin_list_speeds(struct CdrskiN *skin, int flag)
 ex:;
  if(speed_list != NULL)
    burn_drive_free_speedlist(&speed_list);
+ return(ret);
+}
+
+
+/* @param flag: bit0= do not print prefix on first line
+                bit1= plan for multiples of 4 hex words
+ */
+static int Feature_printf(char *prefix, char *text, int flag)
+{
+ char *tpt, *npt;
+ int lp, lp0, line_size;
+
+ lp0= !(flag & 1);
+ tpt= text;
+ lp= strlen(prefix);
+ /* Plan 2 char shorter for possible comma inclusion */
+ line_size= 77;
+ if(flag & 2) {
+   line_size= (80 - lp) / 3;
+   line_size-= line_size % 4;
+   line_size= line_size * 3 - 1 + lp;
+ }
+
+ while(lp * lp0 + strlen(tpt) >= 80) {
+   /* Line size for 20  */
+   for(npt= tpt + line_size - lp * lp0; npt > tpt; npt--)
+     if(*npt == ' ')
+   break;
+   if(npt <= tpt) {
+     printf("%s%s\n", lp0 ? prefix : "", tpt);
+     return(2);
+   }
+   /* Keep comma in printed line */
+   if(*(npt + 1) == ',' && *(npt + 1) == ' ')
+     npt+= 2;
+   /* Print and advance */
+   *npt= 0;
+   printf("%s%s\n", lp0 ? prefix : "", tpt);
+   tpt= npt + 1;
+   lp0= 1;
+ }
+ printf("%s%s\n", lp0 ? prefix : "", tpt);
+ return(1);
+}
+
+
+/** Perform --list_features
+    @param flag Bitfield for control purposes:
+    @return <=0 error, 1 success
+*/
+int Cdrskin_list_features(struct CdrskiN *skin, int flag)
+{
+ struct burn_drive *d;
+ int ret, count, i, j;
+ unsigned int *feature_codes= NULL;
+ unsigned char flags, additional_length, *feature_data = NULL;
+ char *feature_text = NULL, *cpt, *dpt;
+
+ ret= Cdrskin_grab_drive(skin,0);
+ if(ret <= 0)
+   return(ret);
+ d= skin->drives[skin->driveno].drive;
+
+ fprintf(stderr, "SCSI Features reported by the drive:\n");
+ fprintf(stderr,
+   "     + = Current, - = Not Current, P = Persistent, N = Not Persistent\n");
+ fprintf(stderr, "Code C : Name         : Version,Persistent\n");
+ fprintf(stderr, "         Additional data if present (hex bytes)\n");
+ fprintf(stderr, "         Parsed info if available (fieldname=content)\n");
+ fprintf(stderr, "\n");
+
+ burn_drive_get_feature_codes(d, &count, &feature_codes);
+ if(count <= 0) {
+   fprintf(stderr, "cdrskin: NOTE: The drive feature list is empty\n");
+   ret= 1; goto ex;
+ }
+ for(i= 0; i < count; i++) {
+   ret= burn_drive_get_feature(d, feature_codes[i], &flags, &additional_length,
+                               &feature_data, &feature_text);
+   if(ret <= 0) {
+     fprintf(stderr, "cdrskin: SORRY: Cannot obtain data of feature %4.4x\n",
+                     feature_codes[i]);
+ continue;
+   }
+   cpt= feature_text;
+   for(j= 0; j < 3 && cpt != NULL; j++)
+     cpt= strchr(cpt + 1, ':');
+   if(cpt != NULL) {
+     *cpt= 0;
+     cpt++;
+   }
+   Feature_printf("         ", feature_text, 1);
+   if(cpt != NULL) {
+     dpt= cpt;
+     if(*dpt == ' ')
+       dpt++;
+     for(j= 0; j < 1 && cpt != NULL; j++)
+       cpt= strchr(cpt + 1, ':');
+     if(cpt != NULL) {
+       *cpt= 0;
+       cpt++;
+     }
+     Feature_printf("         ", dpt, 2);
+   }
+   if(cpt != NULL) {
+     if(*cpt == ' ')
+       cpt++;
+     Feature_printf("         ", cpt, 0);
+   } else {
+     printf("\n");
+   }
+   if(feature_data != NULL)
+     free(feature_data);
+   feature_data= NULL;
+   if(feature_text != NULL)
+     free(feature_text);
+   feature_text= NULL;
+ }
+ ret= 1;
+ex:;
+ if(feature_codes != NULL)
+   free(feature_codes);
  return(ret);
 }
 
@@ -8843,6 +8968,10 @@ set_isrc:;
      skin->do_list_speeds= 1;
      skin->preskin->demands_cdrskin_caps= 1;
 
+   } else if(strcmp(argv[i],"--list_features")==0) {
+     skin->do_list_features= 1;
+     skin->preskin->demands_cdrskin_caps= 1;
+
    } else if(strncmp(argv[i],"fallback_program=",17)==0) {
      /* is handled in Cdrpreskin_setup() */;
 
@@ -9710,6 +9839,15 @@ int Cdrskin_run(struct CdrskiN *skin, int *exit_value, int flag)
    ret= Cdrskin_list_formats(skin, 0);
    if(ret<=0)
      {*exit_value= 16; goto ex;}
+ }
+ if(skin->do_list_features) {
+   if(skin->n_drives<=0)
+     {*exit_value= 20; goto no_drive;}
+   if(Cdrskin__is_aborting(0))
+     goto ex;
+   ret= Cdrskin_list_features(skin, 0);
+   if(ret<=0)
+     {*exit_value= 20; goto ex;}
  }
  if(skin->do_blank) {
    if(skin->n_drives<=0)
