@@ -3677,3 +3677,63 @@ int burn_drive_get_immed(struct burn_drive *drive)
 }
 
 
+/* ts B90412 , API */
+int burn_drive_get_feature(struct burn_drive *d, unsigned int feature_code,
+			   unsigned char *flags,
+			   unsigned char *additional_length,
+			   unsigned char **feature_data,
+			   char **feature_text)
+{
+	int ret, i;
+	struct burn_feature_descr *descr;
+
+	*flags = 0;
+	*additional_length = 0;
+	*feature_data = NULL;
+	if (feature_text != NULL)
+		*feature_text = NULL;
+	if (!burn_drive_has_feature(d, feature_code, &descr, 0))
+		return 0;
+	*flags = descr->flags;
+	*additional_length = descr->data_lenght;
+	if (*additional_length > 0)
+		BURN_ALLOC_MEM(*feature_data, unsigned char,
+			       *additional_length);
+	for (i = 0; i < *additional_length; i++)
+		(*feature_data)[i] = descr->data[i];
+	
+	if (feature_text != NULL) {
+		ret = burn_make_feature_text(d, feature_code, *flags,
+					*additional_length, *feature_data,
+					feature_text, 0);
+	} else {
+		ret = 1;
+	}
+ex:
+	return ret;
+}
+
+
+/* ts B90412 , API */
+void burn_drive_get_feature_codes(struct burn_drive *d,
+ 				  int *count, unsigned int **feature_codes)
+{
+	struct burn_feature_descr *o;
+	int to_alloc;
+
+	*count = 0;
+	*feature_codes = NULL;
+	for (o = d->features; o != NULL; o = o->next)
+		(*count)++;
+	if (*count == 0)
+		return;
+	to_alloc = *count;
+	*count = 0;
+	BURN_ALLOC_MEM_VOID(*feature_codes, unsigned int, to_alloc);
+	for (o = d->features; o != NULL; o = o->next) {
+		(*feature_codes)[*count] = o->feature_code;
+		(*count)++;
+	}
+ex:;
+}
+

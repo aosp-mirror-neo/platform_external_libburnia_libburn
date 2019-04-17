@@ -54,6 +54,8 @@ burn_drive_get_bd_r_pow;
 burn_drive_get_best_speed;
 burn_drive_get_disc;
 burn_drive_get_drive_role;
+burn_drive_get_feature;
+burn_drive_get_feature_codes;
 burn_drive_get_immed;
 burn_drive_get_media_sno;
 burn_drive_get_min_write_speed;

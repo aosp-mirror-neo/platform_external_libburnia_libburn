@@ -3429,6 +3429,55 @@ int burn_drive_get_all_profiles(struct burn_drive *d, int *num_profiles,
 int burn_obtain_profile_name(int profile_code, char name[80]);
 
 
+/* ts B90414 */
+/** Obtains the list of SCSI Feature Codes from feature descriptors which
+    were obtained from the drive when it was most recently acquired or
+    re-assessed.
+    @param d      Drive to query
+    @param count  Returns the number of allocated elements in feature_codes
+    @param feature_codes  Returns the allocated array of feature codes.
+                          If returned *feature_codes is not NULL, dispose it
+                          by free() when it is no longer needed.
+    @since 1.5.2
+*/
+void burn_drive_get_feature_codes(struct burn_drive *d,
+                                  int *count, unsigned int **feature_codes);
+
+/* ts B90414 */
+/** Obtains the fields and data of a particular feature which were obtained
+    from the drive when it was last acquired or re-assessed. See MMC specs
+    for full detail.
+    @param d             Drive to query
+    @param feature_code  A number as learned by burn_drive_get_feature_codes()
+    @param flags         Returns byte 2 of the feature descriptor:
+                           bit0=   Current
+                           bit1=   Persistent
+                           bit2-5= Version
+    @param additional_length  Returns byte 3 of descriptor.
+                         This is the size of feature_data.
+    @param feature_data  Returns further bytes of descriptor.
+                         If returned *feature_data is not NULL, dispose it
+                         by free() when it is no longer needed.
+    @param feature_text  Returns text representation of the feature descriptor:
+                        Code +/- : Name : Version,P/N : Hex bytes : Parsed info
+                         Current features are marked by "+", others by "-".
+                         Persistent features are marked by "P", others by "N".
+                         feature_text may be submitted as NULL. In this case
+                         no text is generated and returned.
+                         If returned *feature_text is not NULL, dispose it
+                         by free() when it is no longer needed.
+    @return               0 feature descriptor is not present
+                         -1 out of memory
+                         >0 success
+    @since 1.5.2
+*/
+int burn_drive_get_feature(struct burn_drive *d, unsigned int feature_code,
+                           unsigned char *flags,
+                           unsigned char *additional_length,
+                           unsigned char **feature_data,
+                           char **feature_text);
+
+
 /** Gets the maximum write speed for a drive and eventually loaded media.
     The return value might change by the media type of already loaded media,
     again by call burn_drive_grab() and again by call burn_disc_read_atip(). 

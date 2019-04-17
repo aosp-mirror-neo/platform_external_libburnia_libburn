@@ -5440,3 +5440,472 @@ int mmc_setup_drive(struct burn_drive *d)
 	return 1;
 }
 
+
+/* @param flag bit0= really add to text, else only count
+*/
+static void burn__add_to_text(char *text, int *text_len, char *to_add,
+			      int flag)
+{
+	(*text_len) += strlen(to_add);
+	if (flag & 1)
+		strcat(text, to_add);
+}
+
+/* @param flag bit0= really add to text, else only count
+*/
+static void burn__add_hex_to_text(char *text, int *text_len,
+				  unsigned char *to_add, int add_length,
+				  int flag)
+{
+	int i, l;
+
+	(*text_len) += 3 * add_length;
+	if (!(flag & 1))
+		return;
+	l = strlen(text);
+	for (i = 0; i < add_length; i++)
+		sprintf(text + l + 3 * i, " %2.2x", to_add[i]);
+}
+
+int burn_make_feature_text(struct burn_drive *d, unsigned int feature_code,
+			   unsigned char flags,
+			   unsigned char additional_length,
+			   unsigned char *feature_data,
+			   char **text, int flag)
+{
+	char *feature_name, addon[320], *cpt;
+	int text_len, ret, i, pass;
+	unsigned int phys_is, lmt, num;
+
+	static unsigned short feature_codes[] = {
+		0x00, 0x01, 0x02, 0x03,
+		0x04, 0x10, 0x1d, 0x1e,
+		0x1f, 0x20, 0x21, 0x22,
+		0x23, 0x24, 0x25, 0x26,
+		0x27, 0x28, 0x29, 0x2a,
+		0x2b, 0x2c, 0x2d, 0x2e,
+		0x2f, 0x33, 0x37, 0x38,
+		0x3a, 0x3b, 0x40, 0x41,
+		0x42, 0x50, 0x51, 0x80,
+		0x100, 0x101, 0x102, 0x104,
+		0x105, 0x106, 0x107, 0x108,
+		0x109, 0x10a, 0x10b, 0x10c,
+		0x10d, 0x110,
+		0xffff
+	};
+	static char feature_names[][40] = {
+		"Profile List", "Core", "Morphing", "Removable Medium",
+		"Write Protect", "Random Readable", "Multi-Read", "CD Read",
+		"DVD Read", "Random Writable",
+			"Incremental Streaming Writable", "Sector Erasable",
+		"Formattable", "Hardware Defect Management", "Write Once",
+			"Restricted Overwrite",
+		"CD-RW CAV Write", "MRW", "Enhanced Defect Reporting",
+			"DVD+RW",
+		"DVD+R", "Rigid Restricted Overwrite", "CD Track at Once",
+			"CD Mastering",
+		"DVD-R/-RW Write", "Layer Jump Recording",
+			"CD-RW Media Write Support", "BD-R POW",
+		"DVD+RW Dual Layer", "DVD+R Dual Layer", "BD Read Feature",
+			"BD Write Feature",
+		"TSR", "HD DVD Read", "HD DVD Write", "Hybrid Disc",
+		"Power Management", "SMART", "Embedded Changer",
+			"Microcode Upgrade",
+		"Timeout", "DVD-CSS", "Real Time Streaming",
+			"Drive Serial Number",
+		"Media Serial Number", "DCBs", "DVD CPRM",
+			"Firmware Information",
+		"AACS", "VCPS",
+		""
+	};
+	static unsigned short legacy_codes[] = {
+		0x30, 0x31, 0x32, 0x103, 0xffff
+	};
+	static unsigned int phys_is_codes[] = {
+		0x00, 0x01, 0x02, 0x03,
+		0x04, 0x05, 0x06, 0x07,
+		0x08, 0xffff,
+		0xffffffff
+	};
+	static char phys_is_names[][40] = {
+		"Unspecified", "SCSI_Family", "ATAPI", "IEEE_1394-1995",
+		"IEEE_1394A", "Fibre_Channel", "IEEE_1394B", "Serial_ATAPI",
+		"USB", "Vendor_Unique",
+		""
+	};
+	static char load_mech_names[8][40] = {
+		"Caddy/Slot", "Tray", "Pop-up", "(Reserved)",
+		"Embedded_changer_individually", "Embedded_changer_magazine",
+			"(Reserved)",  "(Reserved)"
+	};
+
+	feature_name = "(Reserved)";
+	for (i = 0; feature_codes[i] != 0xffff; i++) {
+		if (feature_codes[i] == feature_code) {
+			feature_name = feature_names[i];
+	break;
+		}
+	}
+	if (feature_codes[i] == 0xffff) {
+		for (i = 0; legacy_codes[i] != 0xffff; i++) {
+			if (legacy_codes[i] == feature_code) {
+				feature_name = "(Legacy)";
+		break;
+			}
+		}
+	}
+	if (feature_code >= 0xff00 && feature_code <= 0xffff)
+		feature_name = "(Vendor Specific)";
+
+	*text = NULL;
+	for (pass = 0; pass < 2; pass++) {
+		if (pass == 1) {
+			BURN_ALLOC_MEM(*text, char, text_len + 1);
+		}
+		text_len = 0;
+
+		sprintf(addon, "%4.4x %c : ", feature_code,
+					      (flags & 1) ? '+' : '-');
+		burn__add_to_text(*text, &text_len, addon, pass);
+
+		burn__add_to_text(*text, &text_len, feature_name, pass);
+
+		/* Version, Persistent, Current */
+		sprintf(addon, " : %1.1x,%c :",
+			(flags >> 2) & 15, (flags & 2) ? 'P' : 'N');
+		burn__add_to_text(*text, &text_len, addon, pass);
+
+		burn__add_hex_to_text(*text, &text_len,
+				feature_data, (int) additional_length, pass);
+		burn__add_to_text(*text, &text_len, " :", pass);
+
+		if (feature_code == 0x01 && additional_length >= 4) {
+			/* Core : Physical Interface Standard , INQ2, DBE */
+			phys_is = mmc_four_char_to_int(feature_data);
+			cpt = "(Not_Recognizable)";
+			for (i = 0; phys_is_codes[i] != 0xffffffff; i++) {
+				if (phys_is_codes[i] == phys_is) {
+					cpt = phys_is_names[i];
+			break;
+				}
+
+			}
+			num = 0;
+			if (additional_length >= 9)
+				num = feature_data[8];
+			sprintf(addon,
+				" PhysInterface=%x/%s , INQ2=%d , DBE=%d",
+				phys_is, cpt, (num >> 1) & 1, num & 1);
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		} else if (feature_code == 0x03 && additional_length >= 1) {
+			/* Removable Medium : Lock, Pvnt Jmpr, Eject, 
+						Loading mechanism Type
+			*/
+			num = feature_data[0];
+			lmt = (num >> 5) & 7;
+			sprintf(addon,
+		      " LoadMechType=%x/%s , Eject=%d , PvntJmpr=%d , Lock=%d",
+				lmt, load_mech_names[lmt], (num >> 3) & 1,
+				(num >> 2) & 1, num & 1);
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		} else if (feature_code == 0x10 && additional_length >= 4) {
+			/* Random Readable: Logical Block Size, Blocking */
+			num = 0;
+			if (additional_length >= 6)
+				num = (feature_data[4] << 8) | feature_data[5];
+			sprintf(addon, " BlockSize=%d , Blocking=%u",
+				mmc_four_char_to_int(feature_data), num);
+			num = 0;
+			if (additional_length >= 7)
+				num = feature_data[6];
+			sprintf(addon + strlen(addon), " , PP=%d", num & 1);
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		} else if (feature_code == 0x1e && additional_length >= 1) {
+			/* CD Read: DAP, C2 Flags, CD-Text */
+			sprintf(addon, " DAP=%d , C2Flags=%d , CDText=%d",
+				(feature_data[0] >> 7) & 1,
+				(feature_data[0] >> 1) & 1,
+				feature_data[0] & 1);
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		} else if (feature_code == 0x1f && additional_length >= 1) {
+			/* DVD Read: MULTI110, Dual-R */
+			num = 0;
+			if (additional_length >= 3)
+				num = feature_data[2];
+			sprintf(addon, " MULTI10=%d , DualR=%d",
+				feature_data[0] & 1, num & 1);
+			burn__add_to_text(*text, &text_len, addon, pass);
+			
+		} else if (feature_code == 0x20 && additional_length >= 4) {
+			/* Random Writable: Last LBA, Logical Block Size,
+						Blocking, PP */
+			num = 0;
+			if (additional_length >= 8)
+				num = mmc_four_char_to_int(feature_data + 4);
+			sprintf(addon, " LastLBA=%d , BlockSize=%u",
+				 mmc_four_char_to_int(feature_data), num);
+			num = 0;
+			if (additional_length >= 10)
+				num = (feature_data[8] << 8) | feature_data[9];
+			sprintf(addon + strlen(addon), " , Blocking=%u", num);
+			num = 0;
+			if (additional_length >= 11)
+				num = feature_data[10];
+			sprintf(addon + strlen(addon), " , PP=%u", num);
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		} else if (feature_code == 0x21 && additional_length >= 2) {
+			/* Incremental Streaming Writable :
+			   Data Block Types , TRIO , ARSV , BUF
+			   Number of Link Sizes
+			*/
+			num = 0;
+			if (additional_length >= 3)
+				num = feature_data[2];
+			sprintf(addon,
+		     " DataBlockTypes=%2.2x%2.2x , TRIO=%d , ARSV=%d , BUF=%d",
+				feature_data[0], feature_data[1],
+				(num >> 2) & 1, (num >> 1) & 1, num & 1);
+			num = 0;
+			if (additional_length >= 4)
+				num = feature_data[3];
+			sprintf(addon + strlen(addon), " , NumLinkSizes=%d",
+				num);
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		} else if (feature_code == 0x23 && additional_length >= 1) {
+			/* Formattable: RENoSA, Expand, QCert, Cert, RRM */
+			num = feature_data[0];
+			sprintf(addon,
+				" RENoSA=%d , Expand=%d , QCert=%d , Cert=%d",
+				(num >> 3) & 1, (num >> 2) & 1,
+				(num >> 1) & 1, num & 1);
+			num = 0;
+			if (additional_length >= 5)
+				num = feature_data[4];
+			sprintf(addon + strlen(addon), " , RRM=%d", num & 1);
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		} else if (feature_code == 0x24 && additional_length >= 1) {
+			/* Defect Management : SSA */
+			sprintf(addon, " SSA=%d", (feature_data[0] >> 7) & 1);
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		} else if (feature_code == 0x28 && additional_length >= 1) {
+			/* MRW */
+			num = feature_data[0];
+			sprintf(addon,
+				" DVDPWrite=%d , DVDPRead=%d , CDWrite=%d",
+				(num >> 2) & 1, (num >> 1) & 1, num & 1);
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		} else if (feature_code == 0x2a && additional_length >= 1) {
+			/* DVD+RW */
+			num = 0;
+			if (additional_length >= 2)
+				num = feature_data[1];
+			sprintf(addon,
+				" Write=%d , QuickStart=%d , CloseOnly=%d",
+				feature_data[0] & 1, (num >> 1) & 1, num & 1);
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		} else if (feature_code == 0x2b && additional_length >= 1) {
+			/* DVD+R */
+			sprintf(addon, " Write=%d", feature_data[0] & 1);
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		} else if (feature_code == 0x2c && additional_length >= 1) {
+			/* Rigid Restricted Overwrite */
+			num = feature_data[0];
+			sprintf(addon,
+			     " DSDG=%d , DSDR=%d , Intermediate=%d , Blank=%d",
+				(num >> 3) & 1, (num >> 2) & 1,
+				(num >> 1) & 1, num & 1);
+			burn__add_to_text(*text, &text_len, addon, pass);
+			
+		} else if (feature_code == 0x2d && additional_length >= 1) {
+			/* CD Track at Once */
+			num= feature_data[0];
+			sprintf(addon,
+     " BUF=%d , RWRaw=%d , RWPack=%d , TestWrite=%d , CD-RW=%d , RWSubcode=%d",
+				(num >> 6) & 1, (num >> 4) & 1,
+				(num >> 3) & 1, (num >> 2) & 1,
+				(num >> 1) & 1, num & 1);
+			num = 0;
+			if (additional_length >= 4)
+				num = (feature_data[2] << 8) | feature_data[3];
+			sprintf(addon + strlen(addon), " , DataTypeSupp=%4.4x",
+				num);
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		} else if (feature_code == 0x2e && additional_length >= 1) {
+			/* CD Mastering (SAO) */
+			num = feature_data[0];
+			sprintf(addon,
+      " BUF=%d , SAO=%d , RawMS=%d , Raw=%d , TestWrite=%d , CD-RW=%d , RW=%d",
+				(num >> 6) & 1, (num >> 5) & 1, (num >> 4) & 1,
+				(num >> 3) & 1, (num >> 2) & 1,
+				(num >> 1) & 1, num & 1);
+			num = 0;
+			if (additional_length >= 4)
+				num = (feature_data[1] << 16) |
+				      (feature_data[2] << 8) | feature_data[3];
+			sprintf(addon + strlen(addon),
+				" , MaxCueSheetLen=%u", num);
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		} else if (feature_code == 0x2f && additional_length >= 1) {
+			/* DVD-R/RW Write */
+			num = feature_data[0];
+			sprintf(addon,
+				" BUF=%d , RDL=%d , TestWrite=%d , DVDRW=%d",
+				(num >> 6) & 1,  (num >> 3) & 1,
+				(num >> 2) & 1, (num >> 1) & 1);
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		} else if (feature_code == 0x33 && additional_length >= 4) {
+			/* Layer Jump Recording */
+			sprintf(addon, " NumLinkSizes=%d", feature_data[3]);
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		} else if (feature_code == 0x37 && additional_length >= 2) {
+			/* CD-RW Media Write Support */
+			addon[0]= 0;
+			for (i = 7; i >= 0; i--) {
+				sprintf(addon + strlen(addon),
+					" Subtype%d=%d%s",
+					i, (feature_data[1] >> i) & 1,
+					i > 0 ? " ," : "");
+			}
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		} else if (feature_code == 0x3a && additional_length >= 2) {
+			/* DVD+RW Dual Layer */
+			sprintf(addon,
+				" Write=%d , QuickStart=%d , CloseOnly=%d",
+				feature_data[0] & 1,
+				(feature_data[1] >> 1) & 1,
+				feature_data[1] & 1);
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		} else if (feature_code == 0x3b && additional_length >= 1) {
+			/* DVD+R Dual Layer */
+			sprintf(addon, " Write=%d", feature_data[0] & 1);
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		} else if (feature_code == 0x50 && additional_length >= 1) {
+			/* HD DVD Read */
+			num = 0;
+			if (additional_length >= 3)
+				num = feature_data[2];
+			sprintf(addon, " HDDVDR=%d , HDDVDRAM=%d",
+				feature_data[0] & 1, num & 1);
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		} else if (feature_code == 0x51 && additional_length >= 1) {
+			/* HD DVD Write */
+			num = 0;
+			if (additional_length >= 3)
+				num = feature_data[2];
+			sprintf(addon, " HDDVDR=%d , HDDVDRAM=%d",
+				feature_data[0] & 1, num & 1);
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		} else if (feature_code == 0x101 && additional_length >= 1) {
+			/* SMART */
+			sprintf(addon, " PP=%d", feature_data[0] & 1);
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		} else if (feature_code == 0x102 && additional_length >= 1) {
+			/* Embedded Changer */
+			num = 0;
+			if (additional_length >= 4)
+				num = feature_data[3];
+			sprintf(addon, " SCC=%d , SDP=%d , HighestSlotNo=%u",
+				(feature_data[0] >> 4) & 1,
+				(feature_data[0] >> 2) & 1, num & 31);
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		} else if (feature_code == 0x105 && additional_length >= 1) {
+			/* Timeout */
+			num = 0;
+			if (additional_length >= 4)
+				num = (feature_data[2] << 8) | feature_data[3];
+			sprintf(addon, " Group3=%d , UnitLength=%u",
+				feature_data[0] & 1, num);
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		} else if (feature_code == 0x106 && additional_length >= 4) {
+			/* DVD CSS */
+			sprintf(addon, " CSSVersion=%d",
+				(int) feature_data[3]);
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		} else if (feature_code == 0x107 && additional_length >= 1) {
+			/* Real Time Streaming */
+			num = feature_data[0];
+			sprintf(addon,
+			       " RBCB=%d , SCS=%d , MP2A=%d , WSPD=%d , SW=%d",
+				(num >> 4) & 1, (num >> 3) & 1, (num >> 2) & 1,
+				(num >> 1) & 1, num & 1);
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		} else if (feature_code == 0x108 && additional_length >= 1) {
+			/* Drive Serial Number */
+			strcpy(addon, " SerialNumber=");
+			for (i = 0; i < additional_length; i++) {
+				num = feature_data[i];
+				if (num >= ' ' && num < 127)
+					addon[14 + i] = feature_data[i];
+				else
+					addon[14 + i] = '?';
+			}
+			addon[14 + i] = 0;
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		} else if (feature_code == 0x10a && additional_length >= 4) {
+			/* DCBs */
+			addon[0] = 0;
+			for (i = 0; i < additional_length / 4; i++)
+				sprintf(addon + strlen(addon),
+					" SuppEntry%d=%2.2x%2.2x%2.2x%2.2x%s",
+					i, feature_data[i * 4 + 0],
+					feature_data[i * 4 + 1],
+					feature_data[i * 4 + 2],
+					feature_data[i * 4 + 3],
+					i < additional_length / 4 - 1 ?
+								" ," : "");
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		} else if (feature_code == 0x10b && additional_length >= 4) {
+			/* DVD CPRM */
+			sprintf(addon, " CPRMVersion=%d", feature_data[3]);
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		} else if (feature_code == 0x10c && additional_length >= 14) {
+			/* Firmware Information */
+			strcpy(addon, " Date=");
+			for (i = 0; i < 14; i += 2)
+				sprintf(addon + 6 + i, "%2.2d",
+					((feature_data[i] & 0xf) % 10) * 10 +
+					((feature_data[i + 1] & 0xf) % 10));
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		} else if (feature_code == 0x10d && additional_length >= 4) {
+			/* AACS */
+			sprintf(addon,
+       " BNG=%d , BlockCountBindingNonce=%d , NumberAGIDs=%d , AACSVersion=%d",
+				feature_data[0] & 1, feature_data[1],
+				feature_data[2] & 0xf, feature_data[3]);
+			burn__add_to_text(*text, &text_len, addon, pass);
+
+		}
+	}
+	ret = 1;
+ex:;
+	return ret;
+}
