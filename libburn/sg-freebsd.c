@@ -873,6 +873,9 @@ int sg_issue_command(struct burn_drive *d, struct command *c)
 		ccb->csio.dxfer_len = 0;
 	}
 
+	/* ts B90523 : Record effective transfer length request for debugging*/
+	c->dxfer_len = ccb->csio.dxfer_len;
+
 	start_time = time(NULL);
 	for (i = 0; !done; i++) {
 
@@ -985,6 +988,8 @@ int sg_issue_command(struct burn_drive *d, struct command *c)
 						timeout_ms, i, !!ignore_error);
 		if (d->cancel)
 			done = 1;
+		if (!done)
+			spc_register_retry(c);
 	} while (!done);
 	ret = 1;
 ex:;

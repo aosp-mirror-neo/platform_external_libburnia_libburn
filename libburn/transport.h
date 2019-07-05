@@ -61,6 +61,7 @@ struct command
 	int dir;
 	int dxfer_len;
 	unsigned char sense[128];
+	int sense_len;
 	int error;
 	int retry;
 	struct buffer *page;
@@ -69,6 +70,10 @@ struct command
 	double start_time;
 	double end_time;
 
+	int retry_count;
+	int last_retry_key;
+	int last_retry_asc;
+	int last_retry_ascq;
 };
 
 struct burn_scsi_inquiry_data
@@ -430,6 +435,8 @@ struct burn_drive
 	/* ts B00225 */
 	pthread_t thread_tid;
 
+	/* ts B90513 */
+	unsigned int write_retry_count;
 
 /* transport functions */
 	int (*grab) (struct burn_drive *);

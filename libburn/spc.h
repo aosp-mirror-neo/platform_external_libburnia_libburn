@@ -117,6 +117,13 @@ int spc_decode_sense(unsigned char *sense, int senselen,
 /* ts B90206 */
 char *spc_command_name(unsigned int c, int flag);
 
+/* ts B90511 */
+int spc_human_readable_cmd(struct command *c, char *msg, int msg_max,
+                           int flag);
+
+/* ts B90616 */
+void spc_register_retry(struct command *c);
+
 /* ts B00808 */
 /** Evaluates outcome of a single SCSI command, eventually logs sense data,
     and issues DEBUG error message in case the command is evaluated as done.

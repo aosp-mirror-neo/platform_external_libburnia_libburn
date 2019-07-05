@@ -615,6 +615,7 @@ Range "scdbackup"          :  0x00020000 to 0x0002ffff
  0x000201aa (FAILURE,HIGH) = No CD-TEXT packs in file
  0x000201ab (WARN,HIGH)    = Leaving burn_source_fifo object undisposed
  0x000201ac (NOTE,HIGH)    = Drive currently does not offer Stream Recording
+ 0x000201ad (NOTE,HIGH)    = WRITE commands have been repeated
 
 
  libdax_audioxtr:

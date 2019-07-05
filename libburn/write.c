@@ -1379,6 +1379,7 @@ int burn_disc_init_write_status(struct burn_write_opts *o,
 	ret = burn_write_opts_clone(o, &(d->write_opts), 0);
 	if (ret <= 0)
 		return ret;
+	d->write_retry_count = 0;
 
 	d->busy = BURN_DRIVE_WRITING;
 
@@ -3193,6 +3194,14 @@ ex:;
 	if (d->write_opts != NULL) {
 		burn_write_opts_free(d->write_opts);
 		d->write_opts = NULL;
+	}
+	if (d->write_retry_count > 0) {
+		sprintf(msg, "WRITE command repetition happened %u times",
+			d->write_retry_count);
+		libdax_msgs_submit(libdax_messenger, d->global_index,
+			0x000201ad,
+			LIBDAX_MSGS_SEV_NOTE, LIBDAX_MSGS_PRIO_HIGH,
+			msg, 0, 0);
 	}
 	return;
 }

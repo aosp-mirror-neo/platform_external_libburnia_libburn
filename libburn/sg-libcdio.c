@@ -665,6 +665,9 @@ int sg_issue_command(struct burn_drive *d, struct command *c)
 		e_direction = SCSI_MMC_DATA_NONE;
 	}
 		
+	/* ts B90523 : Record effective transfer length request for debugging*/
+	c->dxfer_len = dxfer_len;
+
 	/* retry-loop */
 	start_time = time(NULL);
 	if (c->timeout > 0)
@@ -728,6 +731,8 @@ int sg_issue_command(struct burn_drive *d, struct command *c)
 					     start_time, timeout_ms, i, 0);
 		if (d->cancel)
 			done = 1;
+		if (!done)
+			spc_register_retry(c);
 
 	} /* end of retry-loop */
 

@@ -1945,9 +1945,15 @@ static int evaluate_transport_success(struct burn_drive *d, struct command *c,
 			(unsigned int) host_status, host_problem);
 		sev = LIBDAX_MSGS_SEV_FAILURE;
 		if (do_retry && !give_up_drive)
-			sev = LIBDAX_MSGS_SEV_DEBUG;
+			sev = LIBDAX_MSGS_SEV_NOTE;
 		libdax_msgs_submit(libdax_messenger, d->global_index,
 			0x000201a7, sev, LIBDAX_MSGS_PRIO_HIGH, msg, 0, 0);
+		strcpy(msg, "Command: ");
+		if (spc_human_readable_cmd(c, msg + strlen(msg),
+					   160 - strlen(msg), 0) > 0)
+			libdax_msgs_submit(libdax_messenger, d->global_index,
+					0x000201a7, sev, LIBDAX_MSGS_PRIO_HIGH,
+					msg, 0, 0);
 		sprintf(msg, "--- SG_IO: host_status= 0x%x %s",
 			(unsigned int) host_status, host_problem);
 		scsi_log_message(d, fp, msg, 0);
@@ -2001,9 +2007,15 @@ static int evaluate_transport_success(struct burn_drive *d, struct command *c,
 			driver_problem, driver_sugg);
 		sev = LIBDAX_MSGS_SEV_FAILURE;
 		if (do_retry && !give_up_drive)
-			sev = LIBDAX_MSGS_SEV_DEBUG;
+			sev = LIBDAX_MSGS_SEV_NOTE;
 		libdax_msgs_submit(libdax_messenger, d->global_index,
 			0x000201a8, sev, LIBDAX_MSGS_PRIO_HIGH, msg, 0, 0);
+		strcpy(msg, "Command: ");
+		if (spc_human_readable_cmd(c, msg + strlen(msg),
+					   160 - strlen(msg), 0) > 0)
+			libdax_msgs_submit(libdax_messenger, d->global_index,
+					0x000201a8, sev, LIBDAX_MSGS_PRIO_HIGH,
+					msg, 0, 0);
 		sprintf(msg, "--- SG_IO: driver_status= 0x%x %s / %s",
 			(unsigned int) driver_status,
 			driver_problem, driver_sugg);
@@ -2042,7 +2054,7 @@ static void react_on_drive_loss(struct burn_drive *d, struct command *c,
 */
 int sg_issue_command(struct burn_drive *d, struct command *c)
 {
-	int done = 0, no_c_page = 0, i, j, ret;
+	int done = 0, no_c_page = 0, i, ret;
 	int err;
 	time_t start_time;
 	sg_io_hdr_t s;
@@ -2163,6 +2175,9 @@ int sg_issue_command(struct burn_drive *d, struct command *c)
 	}
 	s.usr_ptr = c;
 
+	/* ts B90523 : Record effective transfer length request for debugging*/
+	c->dxfer_len = s.dxfer_len;
+
 	start_time = time(NULL);
 	for(i = 0; !done; i++) {
 
@@ -2204,14 +2219,9 @@ int sg_issue_command(struct burn_drive *d, struct command *c)
 				 d->global_index, 0x0002010c,
 				 LIBDAX_MSGS_SEV_FATAL, LIBDAX_MSGS_PRIO_HIGH,
 				 msg, 0, 0);
-			sprintf(msg, "Attempted command: %s : ",
-				spc_command_name(
-					(unsigned int) c->opcode[0], 0));
-			for (j = 0; j <16 && j < c->oplen; j++)
-				sprintf(msg + strlen(msg), "%2.2x ",
-					c->opcode[j]);
-			sprintf(msg + strlen(msg), " : dxfer_len= %d",
-				s.dxfer_len);
+			sprintf(msg, "Attempted command: ");
+			spc_human_readable_cmd(c, msg + strlen(msg),
+					       160 - strlen(msg), 0);
 			libdax_msgs_submit(libdax_messenger,
 				 d->global_index, 0x0002010c,
 				 LIBDAX_MSGS_SEV_FATAL, LIBDAX_MSGS_PRIO_HIGH,
@@ -2235,9 +2245,12 @@ int sg_issue_command(struct burn_drive *d, struct command *c)
 		if (d->cancel)
 	break;
 		/* if ! done : loop for retry */;
-		if (!done && (burn_sg_log_scsi & 3)) {
-			scsi_log_text("+++ Repeating command", fp, 0);
-			scsi_log_cmd(c, fp, 0);
+		if (!done) {
+			spc_register_retry(c);
+			if (burn_sg_log_scsi & 3) {
+				scsi_log_text("+++ Repeating command", fp, 0);
+				scsi_log_cmd(c, fp, 0);
+			}
 		}
 	}
 

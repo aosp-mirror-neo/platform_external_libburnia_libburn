@@ -754,6 +754,9 @@ int sg_issue_command(struct burn_drive *d, struct command *c)
 	cgc.uscsi_rqlen = sizeof(c->sense);
 	cgc.uscsi_rqbuf = (caddr_t) c->sense;
 
+	/* ts B90523 : Record effective transfer length request for debugging*/
+	c->dxfer_len = cgc.uscsi_buflen;
+
 	/* retry-loop */
 	start_time = time(NULL);
 	for(i = 0; !done; i++) {
@@ -799,6 +802,8 @@ int sg_issue_command(struct burn_drive *d, struct command *c)
 						start_time, timeout_ms, i, 0);
 		if (d->cancel)
 			done = 1;
+		if (!done)
+			spc_register_retry(c);
 					
 	} /* end of retry-loop */
 

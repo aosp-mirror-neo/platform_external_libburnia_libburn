@@ -567,6 +567,9 @@ int sg_issue_command(struct burn_drive *d, struct command *c)
 		ccb->csio.dxfer_len = 0;
 	}
 
+	/* ts B90523 : Record effective transfer length request for debugging*/
+	c->dxfer_len = ccb->csio.dxfer_len;
+
 	do {
 		memset(&ccb->csio.sense_data, 0, sizeof(ccb->csio.sense_data));
 		err = cam_send_ccb(d->cam, ccb);
@@ -585,6 +588,7 @@ int sg_issue_command(struct burn_drive *d, struct command *c)
 		}
 		/* XXX */
 		memcpy(c->sense, &ccb->csio.sense_data, ccb->csio.sense_len);
+		c->sense_len = ccb->csio.sense_len;
 		if ((ccb->ccb_h.status & CAM_STATUS_MASK) != CAM_REQ_CMP) {
 			if (!c->retry) {
 				c->error = 1;
@@ -603,6 +607,8 @@ int sg_issue_command(struct burn_drive *d, struct command *c)
 		} else {
 			done = 1;
 		}
+		if (!done)
+			spc_register_retry(c);
 	} while (!done);
 	cam_freeccb(ccb);
 	return 1;

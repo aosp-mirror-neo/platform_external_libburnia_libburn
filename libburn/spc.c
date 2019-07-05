@@ -75,10 +75,16 @@ int scsi_init_command(struct command *c, unsigned char *opcode, int oplen)
 	c->dir = NO_TRANSFER;
 	c->dxfer_len = -1;
 	memset(c->sense, 0, sizeof(c->sense));
+	c->sense_len = 0;
 	c->error = 0;
 	c->retry = 0;
 	c->page = NULL;
 	c->timeout = Libburn_scsi_default_timeouT;
+	c->start_time = c->end_time = 0.0;
+	c->retry_count = 0;
+	c->last_retry_key = 0;
+	c->last_retry_asc = 0;
+	c->last_retry_ascq = 0;
 	return 1;
 }
 
@@ -153,13 +159,19 @@ int spc_wait_unit_attention(struct burn_drive *d, int max_sec, char *cmd_text,
 	int i, ret = 1, key = 0, asc = 0, ascq = 0, clueless_start = 0;
 	static double tests_per_second = 2.0;
 	int sleep_usecs, loop_limit, clueless_timeout, progress;
-	char *msg = NULL;
+	char *msg = NULL, *cmd_name = NULL, *cmd_cpt;
 	unsigned char sense[14];
 
 	BURN_ALLOC_MEM(msg, char, 320);
+	BURN_ALLOC_MEM(cmd_name, char, 320);
 	clueless_timeout = 5 * tests_per_second + 1;
 	loop_limit = max_sec * tests_per_second + 1;
 	sleep_usecs = 1000000 / tests_per_second;
+
+	strcpy(cmd_name, cmd_text);
+	cmd_cpt = strchr(cmd_name, ':');
+	if (cmd_cpt != NULL)
+		*cmd_cpt = 0;
 
 	if (!(flag & 1))
 		usleep(sleep_usecs);
@@ -190,7 +202,7 @@ int spc_wait_unit_attention(struct burn_drive *d, int max_sec, char *cmd_text,
 handle_error:;
 			/* ts A90213 */
 			sprintf(msg,
-				"Asynchronous SCSI error on %s: ", cmd_text);
+				"Asynchronous SCSI error on %s: ", cmd_name);
 			sense[0] = 0x70; /* Fixed format sense data */
 			sense[2] = key;
 			sense[12] = asc;
@@ -201,6 +213,14 @@ handle_error:;
 				0x0002014d,
 				LIBDAX_MSGS_SEV_SORRY, LIBDAX_MSGS_PRIO_HIGH,
 				msg, 0, 0);
+			if (cmd_cpt != NULL) {
+				sprintf(msg, "Attempted SCSI CDB: %s",
+					cmd_cpt + 1);
+				libdax_msgs_submit(libdax_messenger,
+				  d->global_index, 0x0002014d,
+				  LIBDAX_MSGS_SEV_SORRY, LIBDAX_MSGS_PRIO_HIGH,
+				  msg, 0, 0);
+			}
 			d->cancel = 1;
 	break;
 		} else if (ascq == 0x00) { /* CAUSE NOT REPORTABLE */
@@ -214,6 +234,16 @@ handle_error:;
 				  LIBDAX_MSGS_SEV_DEBUG, LIBDAX_MSGS_PRIO_HIGH,
 				  "Ended clueless NOT READY cycle",
 				  0, 0);
+				if (cmd_cpt != NULL) {
+					sprintf(msg, "Attempted SCSI CDB: %s",
+						cmd_cpt + 1);
+					libdax_msgs_submit(libdax_messenger,
+					  d->global_index,
+					  0x00000002,
+					  LIBDAX_MSGS_SEV_DEBUG,
+					  LIBDAX_MSGS_PRIO_HIGH,
+					  msg, 0, 0);
+				}
 				ret = 1; /* medium not present = ok */
 	break;
 			}
@@ -225,7 +255,7 @@ slumber:;
 	}
 	if (ret <= 0 || !(flag & 2)) {
 		sprintf(msg, "Async %s %s after %d.%d seconds",
-			cmd_text, (ret > 0 ? "succeeded" : "failed"),
+			cmd_name, (ret > 0 ? "succeeded" : "failed"),
 			i / 10, i % 10);
 		libdax_msgs_submit(libdax_messenger, d->global_index,
 			 0x00020150, LIBDAX_MSGS_SEV_DEBUG,
@@ -236,12 +266,19 @@ slumber:;
 		{ret = (ret > 0); goto ex;}
 
 	sprintf(msg, "Timeout (%d s) with asynchronous SCSI command %s\n",
-	 	max_sec, cmd_text);
+	 	max_sec, cmd_name);
 	libdax_msgs_submit(libdax_messenger, d->global_index, 0x0002014f,
 		LIBDAX_MSGS_SEV_SORRY, LIBDAX_MSGS_PRIO_HIGH, msg, 0, 0);
+	if (cmd_cpt != NULL) {
+		sprintf(msg, "Attempted SCSI CDB: %s", cmd_cpt + 1);
+		libdax_msgs_submit(libdax_messenger, d->global_index,
+			0x0002014f, LIBDAX_MSGS_SEV_SORRY,
+			LIBDAX_MSGS_PRIO_HIGH, msg, 0, 0);
+	}
 	ret = 0;
 ex:;
 	BURN_FREE_MEM(msg);
+	BURN_FREE_MEM(cmd_name);
 	return ret;
 }
 
@@ -1727,6 +1764,60 @@ char *spc_command_name(unsigned int c, int flag)
 }
 
 
+/* ts B90616 */
+void spc_register_retry(struct command *c)
+{
+	c->retry_count++;
+	spc_decode_sense(c->sense, c->sense_len, &c->last_retry_key,
+			 &c->last_retry_asc, &c->last_retry_ascq);
+}
+
+
+/* ts B90511 */
+/* @param flag  bit0= do not prepend command name
+                bit1= do not append dxfer_len
+*/
+int spc_human_readable_cmd(struct command *c, char *msg, int msg_max, int flag)
+{
+	int j, l, lname;
+
+	if ((flag & 1) && c->retry_count <= 0) {
+		msg[0] = 0;
+	} else {
+		if (msg_max < 60)
+			return -1;
+		strcpy(msg, spc_command_name( (unsigned int) c->opcode[0], 0));
+		if (c->retry_count > 0) {
+			sprintf(msg + strlen(msg), " #%d", c->retry_count + 1);
+			if (c->last_retry_key > 0)
+				sprintf(msg + strlen(msg), ",[%X %2.2X %2.2X]",
+					c->last_retry_key, c->last_retry_asc,
+					c->last_retry_ascq);
+		}
+		strcat(msg, " : ");
+	}
+	lname = l = strlen(msg);
+	for (j = 0; j < 16 && j < c->oplen; j++) {
+		if (l > msg_max - 3) {
+			if (msg_max - 4 >= lname) {
+				l = msg_max - 4;
+				sprintf(msg + strlen(msg), "... ");
+			}
+			return 0;
+		}
+		sprintf(msg + l, "%2.2x ", c->opcode[j]);
+		l += 3;
+	}
+	if (c->dir != NO_TRANSFER && c->page != NULL && !(flag & 2)) {
+		if (l > msg_max - 24)
+			return 0;
+		sprintf(msg + l, " : dxfer_len= %d", c->dxfer_len);
+		l = strlen(msg);
+	}
+	return 1;
+}
+
+
 /* ts A61030 - A61115 */
 /* @param flag bit0= do report conditions which are considered not an error
                bit1= report with severity FAILURE rather than DEBUG
@@ -1764,7 +1855,16 @@ int scsi_notify_error(struct burn_drive *d, struct command *c,
 	ret = libdax_msgs_submit(libdax_messenger, d->global_index, 0x0002010f,
 		(flag & 2) && d->silent_on_scsi_error != 3 ?
 		  LIBDAX_MSGS_SEV_FAILURE : LIBDAX_MSGS_SEV_DEBUG,
-		LIBDAX_MSGS_PRIO_HIGH, msg,0,0);
+		LIBDAX_MSGS_PRIO_HIGH, msg, 0, 0);
+	strcpy(msg, "CDB= ");
+	if (spc_human_readable_cmd(c, msg + strlen(msg), 320 - strlen(msg), 1)
+	    > 0) {
+		libdax_msgs_submit(libdax_messenger, d->global_index,
+			0x0002010f,
+			(flag & 2) && d->silent_on_scsi_error != 3 ?
+			LIBDAX_MSGS_SEV_FAILURE : LIBDAX_MSGS_SEV_DEBUG,
+			LIBDAX_MSGS_PRIO_HIGH, msg, 0, 0);
+	}
 ex:;
 	BURN_FREE_MEM(msg);
 	BURN_FREE_MEM(scsi_msg);
@@ -2011,6 +2111,8 @@ int scsi_eval_cmd_outcome(struct burn_drive *d, struct command *c, void *fp,
 	if (burn_sg_log_scsi & 3)
 		scsi_log_err(d, c, fp, sense, sense_len,
 				 (sense_len > 0) | (flag & 2));
+	if (sense == c->sense)
+		c->sense_len = sense_len;
 	if (sense_len <= 0)
 		{done = 1; goto ex;}
 		
@@ -2042,6 +2144,13 @@ int scsi_eval_cmd_outcome(struct burn_drive *d, struct command *c, void *fp,
 				0x0002018a,
 				LIBDAX_MSGS_SEV_SORRY, LIBDAX_MSGS_PRIO_HIGH,
 				msg, 0, 0);
+			strcpy(msg, "Command: ");
+			if (spc_human_readable_cmd(c, msg + strlen(msg),
+						   320 - strlen(msg), 0) > 0)
+				libdax_msgs_submit(libdax_messenger,
+					d->global_index, 0x0002018a, 
+					LIBDAX_MSGS_SEV_SORRY,
+					LIBDAX_MSGS_PRIO_HIGH, msg, 0, 0);
 			goto err_ex;
 		}
 		if (d->cancel)

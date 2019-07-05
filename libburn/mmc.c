@@ -643,7 +643,8 @@ void mmc_close(struct burn_drive *d, int session, int track)
 		d->cancel = 1;
 		return;
 	}
-	if (spc_wait_unit_attention(d, 3600, "CLOSE TRACK SESSION", 0) <= 0)
+	spc_human_readable_cmd(c, msg, 160, 0);
+	if (spc_wait_unit_attention(d, 3600, msg, 0) <= 0)
 		d->cancel = 1;
 }
 
@@ -964,7 +965,7 @@ fprintf(stderr, "libburn_DEBUG: buffer sectors= %d  bytes= %d\n",
 	/* ts A70215 */
 	if (d->media_lba_limit > 0 && start >= d->media_lba_limit) {
 
-		msg = calloc(1, 160);
+		msg = calloc(1, 320);
 		if (msg != NULL) {
 			sprintf(msg,
 		"Exceeding range of permissible write addresses (%d >= %d)",
@@ -973,6 +974,15 @@ fprintf(stderr, "libburn_DEBUG: buffer sectors= %d  bytes= %d\n",
 				0x0002012d,
 				LIBDAX_MSGS_SEV_FATAL, LIBDAX_MSGS_PRIO_HIGH,
 				msg, 0, 0);
+			strcpy(msg, "CDB= ");
+			if (spc_human_readable_cmd(c, msg + strlen(msg),
+					320 - strlen(msg), 1) > 0) {
+				libdax_msgs_submit(libdax_messenger,
+					d->global_index, 0x0002012d,
+					LIBDAX_MSGS_SEV_FATAL,
+					LIBDAX_MSGS_PRIO_HIGH,
+					msg, 0, 0);
+			}
 			free(msg);
 		}
 		d->cancel = 1; /* No need for mutexing because atomic */
@@ -1030,7 +1040,7 @@ fprintf(stderr, "libburn_DEBUG: buffer sectors= %d  bytes= %d\n",
 		int key, asc, ascq;
 		int err_sev = LIBDAX_MSGS_SEV_FATAL;
 
-		msg = calloc(1, 256);
+		msg = calloc(1, 320);
 		if (msg != NULL) {
 			sprintf(msg, "SCSI error on write(%d,%d): ",
 				 start, len);
@@ -1059,12 +1069,21 @@ fprintf(stderr, "libburn_DEBUG: buffer sectors= %d  bytes= %d\n",
 				0x0002011d,
 				err_sev, LIBDAX_MSGS_PRIO_HIGH,
 				msg, 0, 0);
+			strcpy(msg, "CDB= ");
+			if (spc_human_readable_cmd(c, msg + strlen(msg),
+					320 - strlen(msg), 0) > 0) {
+				libdax_msgs_submit(libdax_messenger,
+					d->global_index, 0x0002011d,
+					err_sev, LIBDAX_MSGS_PRIO_HIGH,
+					msg, 0, 0);
+			}
 			free(msg);
 		}
 		d->cancel = 1;
 
 		return BE_CANCELLED;
-	} 
+	}
+	d->write_retry_count += c->retry_count;
 
 	return 0;
 }
@@ -3566,7 +3585,8 @@ void mmc_sync_cache(struct burn_drive *d)
 		goto ex;
 	}
 
-	if (spc_wait_unit_attention(d, 3600, "SYNCHRONIZE CACHE", 0) <= 0)
+	spc_human_readable_cmd(c, msg, 160, 0);
+	if (spc_wait_unit_attention(d, 3600, msg, 0) <= 0)
 		d->cancel = 1;
 	else
 		d->needs_sync_cache = 0;

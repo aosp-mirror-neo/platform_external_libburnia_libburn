@@ -587,6 +587,9 @@ int sg_issue_command(struct burn_drive *d, struct command *c)
 		req.datalen = 0;
 	}
 
+	/* ts B90523 : Record effective transfer length request for debugging*/
+	c->dxfer_len = req.datalen;
+
 	/* retry-loop */
 	start_time = time(NULL);
 	for(i = 0; !done; i++) {
@@ -668,6 +671,8 @@ if (c->opcode[0] == 0x5a) {
 						start_time, timeout_ms, i, 0);
 		if (d->cancel)
 			done = 1;
+		if (!done)
+			spc_register_retry(c);
 	} /* end of retry-loop */
 
 	return 1;
