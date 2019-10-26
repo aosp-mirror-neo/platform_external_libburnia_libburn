@@ -13826,35 +13826,136 @@ cdrskin/README
 cdrskin/cdrskin_timestamp.h
 Made number transition to 1.5.1
 
-  []
+16 Sep 2018  [f525071]
 ChangeLog
 cdrskin/changelog.txt
 Updated change log
 
 ------------------------------------ cycle  - cdrskin-1.5.1 - 2018.09.16.134959
 
+2018.10.10.160024  [af65852]
+libburn/mmc.c
+Silenced gcc warnings about switch-cases and printf target buffers
+
+2018.10.10.160301  [042fe17]
+libburn/async.c
+Bug fix: No lock was obtained for setting up a fifo object
+
+2018.10.11.074048  [7282eaa]
+libburn/write.c
+Silenced gcc warnings about printf target buffer
+
+2018.12.12.125445  [d72fb13]
+libburn/spc.c
+Emitting cleartext for errors with ASC 6F (CSS problems)
+
+05 Apr 2019  [1c06669]
+acinclude.m4
+Made libburn ready for building out-of-source. Thanks Ross Burton.
+
+07 Apr 2019  [9ac8efa]
+configure.ac
+Disabled autotools macro AM_MAINTAINER_MODE on advise of Ross Burton.
+
+2019.04.13.173355  [39f2712]
+libburn/libdax_msgs.h
+libburn/drive.c
+libburn/write.c
+libburn/mmc.c
+Bug fix: Stream recording was applied regardless whether the drive offers it
+
+2019.04.13.173610  [4d5486a]
+libburn/drive.c
+Applying stream recording only to DVD-RAM, BD-R, BD-RE media
+
+2019.04.17.085941  [610e213]
+libburn/spc.h
+libburn/spc.c
+libburn/sg-linux.c
+Putting out more info in case of failed Linux SG_IO ioctl
+
+2019.04.17.092323  [c5bc9f6]
+libburn/libburn.h
+libburn/libburn.ver
+libburn/mmc.c
+libburn/drive.c
+New API calls burn_drive_get_feature_codes(), burn_drive_get_feature()
+
+2019.04.17.095742  [0e73afd]
+cdrskin/cdrskin.c
+cdrskin/cdrskin.1
+New cdrskin option --list_features
+
+2019.07.05.133618  [6905bb4]
+libburn/transport.h
+libburn/libdax_msgs.h
+libburn/spc.h
+libburn/spc.c
+libburn/mmc.c
+libburn/write.c
+libburn/sg-linux.c
+libburn/sg-freebsd.c
+libburn/sg-freebsd-port.c
+libburn/sg-netbsd.c
+libburn/sg-solaris.c
+libburn/sg-libcdio.c
+Showing more info in case of drive errors and transport problems
+
+2019.09.20.103726  [354d45e]
+libburn/util.c
+Bug fix: TDK Corporation was not recognized as manufacturer of DVD-R "TTH02".
+Thanks Steve.
+
+2019.10.26.143001  [2298dfd]
+Makefile.am
+configure.ac
+README
+libburn/libburn.h
+cdrskin/cdrskin.c
+cdrskin/cdrskin.1
+cdrskin/README
+cdrskin/compile_cdrskin.sh
+cdrskin/cdrskin_timestamp.h
+cdrskin/cdrskin_eng.html
+Made number transition to 1.5.2
+
+26 Oct 2019  [ce2ddab]
+- cdrskin/add_ts_changes_to_libburn_1_5_0
+- cdrskin/add_ts_changes_to_libburn_1_5_1
++ cdrskin/add_ts_changes_to_libburn_1_5_2
++ cdrskin/add_ts_changes_to_libburn_1_5_3
+Updated cdrskin tarball generator
+
+26 Oct 2019  []
+ChangeLog
+cdrskin/changelog.txt
+Updated change log
+
+----------------------------------- release - cdrskin-1.5.2 - 2019.10.26.143001
+* Bug fix: No lock was obtained for setting up a fifo object
+* Bug fix: Stream recording was applied regardless whether the drive offers it
+* Bug fix: TDK Corporation was not recognized as manufacturer of DVD-R "TTH02"
+* Made libburn ready for building out-of-source.  Thanks Ross Burton.
+* New API calls burn_drive_get_feature_codes(), burn_drive_get_feature()
+* New cdrskin option --list_features
+
+
+  []
+ChangeLog
+cdrskin/cdrskin_eng.html
+cdrskin/changelog.txt
+Updated change log
+
+------------------------------------ cycle  - cdrskin-1.5.1 - 
+
+(((
   []
 libburn/spc.h
 libburn/spc.c
 libburn/sg-linux.c
 Making commands retryable after particular Linux kernel transport errors
 (currently as libburn/*.[ch].after_1_4_8)
-
-  []
-ChangeLog
-cdrskin/cdrskin_eng.html
-cdrskin/changelog.txt
-Updated change log
-
------------------------------------- cycle  - cdrskin-1.5.1 - 
-
-  []
-ChangeLog
-cdrskin/cdrskin_eng.html
-cdrskin/changelog.txt
-Updated change log
-
------------------------------------- cycle  - cdrskin-1.5.1 - 
+)))
 
 
 **********************************************************************
