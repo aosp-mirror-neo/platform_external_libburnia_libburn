@@ -67,7 +67,7 @@ with drives connected via SCSI, PATA (aka IDE, ATA), USB, or SATA.
 GPL software included:<BR>
 </H2>
 <DL>
-<DT>libburn-1.5.0</DT>
+<DT>libburn-1.5.2</DT>
 <DD>(founded by Derek Foreman and Ben Jansens,
 developed and maintained since August 2006 by
 Thomas Schmitt from team of libburnia-project.org)
@@ -202,13 +202,13 @@ Standalone ISO 9660 multi-session CD/DVD/BD tool
 <P>
 <DL>
 <DT>Download as source code (see README):</DT>
-<DD><A HREF="cdrskin-1.5.0.tar.gz">cdrskin-1.5.0.tar.gz</A>
+<DD><A HREF="cdrskin-1.5.2.tar.gz">cdrskin-1.5.2.tar.gz</A>
 (1060 KB).
 </DD>
-<DD><A HREF="cdrskin-1.5.0.tar.gz.sig">cdrskin-1.5.0.tar.gz.sig</A></DD>
+<DD><A HREF="cdrskin-1.5.2.tar.gz.sig">cdrskin-1.5.2.tar.gz.sig</A></DD>
 <DD>
 (detached GPG signature for verification by
-<KBD>gpg --verify cdrskin-1.5.0.tar.gz.sig cdrskin-1.5.0.tar.gz</KBD>
+<KBD>gpg --verify cdrskin-1.5.2.tar.gz.sig cdrskin-1.5.2.tar.gz</KBD>
 <BR>
 after <KBD>gpg --keyserver keys.gnupg.net --recv-keys ABC0A854</KBD>).
 </DD>
@@ -259,26 +259,25 @@ cdrskin_0.4.2.pl00-x86-suse9_0-static.tar.gz</A>, (310 KB), -static compiled,
 <HR>
 
 <P>
-Enhancements towards previous stable version cdrskin-1.4.8:
+Enhancements towards previous stable version cdrskin-1.5.0:
 <UL>
-<LI>none</LI>
+<LI>New cdrskin option --list_features</LI>
 <!--
 <LI>none</LI>
 -->
 </UL>
 
-Bug fixes towards cdrskin-1.4.8:
+Bug fixes towards cdrskin-1.5.0:
 <UL>
 <LI>
-Device file comparison parameters were recorded wrong with Linux sg
+No lock was obtained for setting up a fifo object
 </LI>
 <LI>
-SIGSEGV could happen if a track ended by reaching its fixed size
-while the track source still was willing to deliver bytes
+TDK Corporation was not recognized as manufacturer of DVD-R "TTH02"
 </LI>
 <LI>
-cdrskin threw errno 22 on data file input if libburn is
-configured with --enable-track-src-odirect
+Stream recording was applied regardless whether the drive offers it.
+This caused Xfburn failures with some MATSHITA laptop drives.
 </LI>
 </UL>
 <!--
@@ -292,8 +291,8 @@ Bug fixes towards cdrskin-1.4.2 (without .pl01):
 
 <P>
 <DL>
-<DT><H3>Development snapshot, version 1.5.1 :</H3></DT>
-<DD>Enhancements towards current stable version 1.5.0:
+<DT><H3>Development snapshot, version 1.5.3 :</H3></DT>
+<DD>Enhancements towards current stable version 1.5.2:
 <UL>
 <LI>none yet</LI>
 <!--
@@ -301,7 +300,7 @@ Bug fixes towards cdrskin-1.4.2 (without .pl01):
 </UL>
 </DD>
 
-<DD>Bug fixes towards cdrskin-1.5.0:
+<DD>Bug fixes towards cdrskin-1.5.2:
 <UL>
 <LI>none yet</LI>
 <!--
@@ -311,10 +310,10 @@ Bug fixes towards cdrskin-1.4.2 (without .pl01):
 </DD>
 
 <DD>&nbsp;</DD>
-<DD><A HREF="README_cdrskin_devel">README 1.5.1</A>
-<DD><A HREF="cdrskin__help_devel">cdrskin-1.5.1 --help</A></DD>
-<DD><A HREF="cdrskin_help_devel">cdrskin-1.5.1 -help</A></DD>
-<DD><A HREF="man_1_cdrskin_devel.html">man cdrskin (as of 1.5.1)</A></DD>
+<DD><A HREF="README_cdrskin_devel">README 1.5.3</A>
+<DD><A HREF="cdrskin__help_devel">cdrskin-1.5.3 --help</A></DD>
+<DD><A HREF="cdrskin_help_devel">cdrskin-1.5.3 -help</A></DD>
+<DD><A HREF="man_1_cdrskin_devel.html">man cdrskin (as of 1.5.3)</A></DD>
 <DD>&nbsp;</DD>
 <DT>Maintainers of cdrskin unstable packages please use SVN of
 <A HREF="http://libburnia-project.org"> libburnia-project.org</A></DT>
@@ -334,7 +333,7 @@ admins with full system sovereignty.</DT>
 <A HREF="README_cdrskin_devel">upcoming README</A> ):
 </DD>
 <DD>
-<A HREF="cdrskin-1.5.1.tar.gz">cdrskin-1.5.1.tar.gz</A>
+<A HREF="cdrskin-1.5.3.tar.gz">cdrskin-1.5.3.tar.gz</A>
 (1060 KB).
 </DD>
 
