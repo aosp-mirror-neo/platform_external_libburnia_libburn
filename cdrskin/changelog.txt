@@ -13926,10 +13926,15 @@ Made number transition to 1.5.2
 + cdrskin/add_ts_changes_to_libburn_1_5_3
 Updated cdrskin tarball generator
 
-26 Oct 2019  []
+26 Oct 2019  [a6fdbc7]
 ChangeLog
 cdrskin/changelog.txt
 Updated change log
+
+26 Oct 2019  []
+libburn/mmc.h
+cdrskin/changelog.txt
+Committed forgotten header file
 
 ----------------------------------- release - cdrskin-1.5.2 - 2019.10.26.143001
 * Bug fix: No lock was obtained for setting up a fifo object

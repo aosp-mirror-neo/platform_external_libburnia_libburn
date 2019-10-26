@@ -130,6 +130,12 @@ int mmc_get_leadin_text(struct burn_drive *d,
 /* ts B40107 */
 int mmc_get_performance(struct burn_drive *d, int descr_type, int flag);
 
+/* ts B90414 */
+int burn_make_feature_text(struct burn_drive *d, unsigned int feature_code,
+                           unsigned char flags,
+                           unsigned char additional_length,
+                           unsigned char *feature_data,
+                           char **text, int flag);
 
 #ifdef Libburn_develop_quality_scaN
 /* B21108 ts */
