@@ -13931,7 +13931,7 @@ ChangeLog
 cdrskin/changelog.txt
 Updated change log
 
-26 Oct 2019  []
+26 Oct 2019  [3a94030]
 libburn/mmc.h
 cdrskin/changelog.txt
 Committed forgotten header file
@@ -13945,13 +13945,30 @@ Committed forgotten header file
 * New cdrskin option --list_features
 
 
+2019.10.27.142135  [0a37e8c]
+Makefile.am
+configure.ac
+libburn/libburn.h
+cdrskin/cdrskin.c
+cdrskin/cdrskin.1
+cdrskin/README
+cdrskin/cdrskin_timestamp.h
+Made number transition to 1.5.3
+
+27 Oct 2019  []
+ChangeLog
+cdrskin/changelog.txt
+Updated change log
+
+------------------------------------ cycle  - cdrskin-1.5.3 - 2019.10.27.142135
+
   []
 ChangeLog
 cdrskin/cdrskin_eng.html
 cdrskin/changelog.txt
 Updated change log
 
------------------------------------- cycle  - cdrskin-1.5.1 - 
+------------------------------------ cycle  - cdrskin-1.5.3 - 
 
 (((
   []

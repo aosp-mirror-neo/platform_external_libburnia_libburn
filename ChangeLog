@@ -1,3 +1,8 @@
+git clone git@dev.lovelyhq.com:libburnia/libburn.git
+(to become libburn-1.5.4 or higher)
+===============================================================================
+- no novelties yet -
+
 libburn-1.5.2.tar.gz Sat Oct 26 2019
 ===============================================================================
 * Bug fix: No lock was obtained for setting up a fifo object
