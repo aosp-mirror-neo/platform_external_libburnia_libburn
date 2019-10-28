@@ -158,7 +158,7 @@ static int libdax_audioxtr_identify_wav(struct libdax_audioxtr *o, int flag)
  char buf[16];
  unsigned char *ubuf;
 
- /* check wether this is a MS WAVE file .wav */
+ /* check whether this is a MS WAVE file .wav */
  /* info used: http://ccrma.stanford.edu/courses/422/projects/WaveFormat/
                https://en.wikipedia.org/wiki/WAV
     see summary in: doc/waveformat.txt
@@ -247,7 +247,7 @@ static int libdax_audioxtr_identify_au(struct libdax_audioxtr *o, int flag)
  int ret,encoding;
  char buf[24];
 
- /* Check wether this is a Sun Audio, .au file */
+ /* Check whether this is a Sun Audio, .au file */
  /* info used: http://ccrma.stanford.edu/courses/422/projects/WaveFormat/ */
 
  if(o->fd!=0) {

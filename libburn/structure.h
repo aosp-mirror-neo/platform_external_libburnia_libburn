@@ -53,7 +53,7 @@ struct burn_track
 	/** 1 means Pad with zeros, 0 means start reading the next track */
 	int pad;
 
-	/* ts A70213 : wether to expand this track to full available media */
+	/* ts A70213 : whether to expand this track to full available media */
 	int fill_up_media;
 
 	/* ts A70218 : a track size to use if it is mandarory to have some */
@@ -137,7 +137,7 @@ struct burn_session
 	unsigned char cdtext_language[8];
 
 	/* ts B11226 */
-	unsigned char mediacatalog[14]; /* overrideable by burn_write_opts */
+	unsigned char mediacatalog[14]; /* overridable by burn_write_opts */
 };
 
 struct burn_disc

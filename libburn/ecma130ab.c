@@ -75,11 +75,11 @@
    >>> See correctness reservation below.
 
    Algebra on Galois fields is the same as on Rational Numbers.
-   But arithmetics is defined by operations on polynomials rather than the
-   usual integer arithmetics on binary numbers.
+   But arithmetics on its polynomials differ from usual integer arithmetics
+   on binary numbers.
    Addition and subtraction are identical with the binary exor operator.
    Multiplication and division would demand polynomial division, e.g. by the
-   euclidian algorithm. The computing path over logarithms and powers follows
+   euclidean algorithm. The computing path over logarithms and powers follows
    algebra and reduces the arithmetic task to table lookups, additions
    modulo 255, and exor operations. Note that the logarithms are natural
    numbers, not polynomials. They get added or subtracted by the usual addition

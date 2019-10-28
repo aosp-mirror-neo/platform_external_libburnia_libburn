@@ -923,7 +923,7 @@ void process_q(struct burn_drive *d, unsigned char *q)
 		break;
 	default:
 
-		/* ts A61009 : if reactivated then witout Assert */
+		/* ts A61009 : if reactivated then without Assert */
 		a ssert(0);
 	}
 }

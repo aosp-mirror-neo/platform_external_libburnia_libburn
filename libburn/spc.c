@@ -1056,7 +1056,7 @@ void spc_probe_write_modes(struct burn_drive *d)
 	struct buffer *buf = NULL;
 	int try_write_type = 1;
 	int try_block_type = 0;
-	int key, asc, ascq, useable_write_type = -1, useable_block_type = -1;
+	int key, asc, ascq, usable_write_type = -1, usable_block_type = -1;
 	int last_try = 0;
 	struct command *c = NULL;
 
@@ -1071,11 +1071,11 @@ void spc_probe_write_modes(struct burn_drive *d)
 	while (try_write_type != 5) {
 		/* ts A70213 */
 		if (try_write_type == 4) {
-			/* Pseudo write type NONE . Set a useable write mode */
-			if (useable_write_type == -1)
+			/* Pseudo write type NONE . Set a usable write mode */
+			if (usable_write_type == -1)
 	break;
-			try_write_type = useable_write_type;
-			try_block_type = useable_block_type;
+			try_write_type = usable_write_type;
+			try_block_type = usable_block_type;
 			last_try= 1;
 		}
 
@@ -1118,12 +1118,12 @@ void spc_probe_write_modes(struct burn_drive *d)
 					1 << try_block_type;
 
 			/* ts A70213 */
-			if ((useable_write_type < 0 && try_write_type > 0) ||
+			if ((usable_write_type < 0 && try_write_type > 0) ||
 			    (try_write_type == 1 && try_block_type == 8)) {
 			 	/* Packet is not supported yet.
 				   Prefer TAO MODE_1. */
-				useable_write_type = try_write_type;
-				useable_block_type = try_block_type;
+				usable_write_type = try_write_type;
+				usable_block_type = try_block_type;
 			} 
 		}
 		switch (try_block_type) {

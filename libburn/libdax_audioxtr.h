@@ -38,7 +38,7 @@ struct libdax_audioxtr;
      /* Calls from applications (to be forwarded by libdax/libburn) */
 
 
-/** Open an audio file, check wether suitable, create extractor object.
+/** Open an audio file, check whether suitable, create extractor object.
     @param xtr Opaque handle to extractor. Gets attached extractor object.
     @param path Address of the audio file to extract. "-" is stdin (but might
                 be not suitable for all futurely supported formats).

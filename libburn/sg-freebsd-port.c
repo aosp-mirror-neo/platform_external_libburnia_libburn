@@ -47,8 +47,8 @@ sg_initialize()         performs global initialization of the SCSI transport
                         facilities. Checks for compatibility of supporting
                         software components.
 
-sg_shutdown()           performs global finalizations and releases golbally
-                        aquired resources.
+sg_shutdown()           performs global finalizations and releases globally
+                        acquired resources.
 
 sg_give_next_adr()      iterates over the set of potentially useful drive 
                         address strings.
@@ -57,10 +57,10 @@ scsi_enumerate_drives() brings all available, not-whitelist-banned, and
                         accessible drives into libburn's list of drives.
 
 sg_dispose_drive()      finalizes adapter specifics of struct burn_drive
-                        on destruction. Releases resources which were aquired
+                        on destruction. Releases resources which were acquired
                         underneath scsi_enumerate_drives().
 
-sg_drive_is_open()      tells wether libburn has the given drive in use.
+sg_drive_is_open()      tells whether libburn has the given drive in use.
 
 sg_grab()               opens the drive for SCSI commands and ensures
                         undisturbed access.
@@ -68,7 +68,7 @@ sg_grab()               opens the drive for SCSI commands and ensures
 sg_release()            closes a drive opened by sg_grab()
 
 sg_issue_command()      sends a SCSI command to the drive, receives reply,
-                        and evaluates wether the command succeeded or shall
+                        and evaluates whether the command succeeded or shall
                         be retried or finally failed.
 
 sg_obtain_scsi_adr()    tries to obtain SCSI address parameters.
@@ -307,7 +307,7 @@ int sg_initialize(char msg[1024], int flag)
 
 
 /** Performs global finalization of the SCSI transport adapter and eventually
-    needed operating system facilities. Releases globally aquired resources.
+    needed operating system facilities. Releases globally acquired resources.
     @param flag  unused yet, submit 0
     @return      1 = success, <=0 = failure
 */  
@@ -444,7 +444,7 @@ int scsi_enumerate_drives(void)
 }
 
 
-/** Tells wether libburn has the given drive in use or exclusively reserved.
+/** Tells whether libburn has the given drive in use or exclusively reserved.
     If it is "open" then libburn will eventually call sg_release() on it when
     it is time to give up usage and reservation.
 */
@@ -485,7 +485,7 @@ int sg_grab(struct burn_drive *d)
 }
 
 
-/** PORTING: Is mainly about the call to sg_close_drive() and wether it
+/** PORTING: Is mainly about the call to sg_close_drive() and whether it
              implements the demanded functionality.
 */
 /** Gives up the drive for SCSI commands and releases eventual access locks.
@@ -500,7 +500,7 @@ int sg_release(struct burn_drive *d)
 }
 
 
-/** Sends a SCSI command to the drive, receives reply and evaluates wether
+/** Sends a SCSI command to the drive, receives reply and evaluates whether
     the command succeeded or shall be retried or finally failed.
     Returned SCSI errors shall not lead to a return value indicating failure.
     The callers get notified by c->error. An SCSI failure which leads not to
@@ -647,7 +647,7 @@ int sg_obtain_scsi_adr(char *path, int *bus_no, int *host_no, int *channel_no,
 }
 
 
-/** Tells wether a text is a persistent address as listed by the enumeration
+/** Tells whether a text is a persistent address as listed by the enumeration
     functions.
 */
 int sg_is_enumerable_adr(char* adr)

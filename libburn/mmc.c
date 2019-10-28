@@ -109,7 +109,7 @@ extern struct libdax_msgs *libdax_messenger;
                Error messages of class DEBUG appear because of inability to
                read TOC or track info. Nevertheless, the written images verify.
    ts A61220 : Burned to a virgin DVD+RW by help of new mmc_format_unit()
-               (did not test wether it would work without). Burned to a
+               (did not test whether it would work without). Burned to a
                not completely formatted DVD+RW. (Had worked before without
                mmc_format_unit() but i did not exceed the formatted range
                as reported by dvd+rw-mediainfo.) 
@@ -502,7 +502,7 @@ int mmc_get_nwa(struct burn_drive *d, int trackno, int *lba, int *nwa)
 		sprintf(msg, "Upcoming track: ");
 	if (d->current_profile == 0x1a || d->current_profile == 0x13 ||
 	    d->current_profile == 0x12 || d->current_profile == 0x43) {
-		 /* overwriteable */
+		 /* overwritable */
 		*lba = *nwa = num = 0;
 
 	} else if (data[5] & 32) { /* ts B10534 : MMC-5 6.27.3.7 Damage Bit */
@@ -1581,7 +1581,7 @@ static int mmc_read_toc_al(struct burn_drive *d, int *alloc_len)
 
 		/* ts A61020 : this snaps on non-blank DVD media */
 		/* ts A61106 : also snaps on CD with unclosed track/session */
-		/* Very unsure wether this old measure is ok.
+		/* Very unsure whether this old measure is ok.
 		   Obviously higher levels do not care about this.
 		   outdated info: DVD+RW burns go on after passing through here.
 
@@ -3660,7 +3660,7 @@ ex:;
 /* ts A61219 : learned much from dvd+rw-tools-7.0: plus_rw_format()
                and mmc5r03c.pdf, 6.5 FORMAT UNIT */
 /*
-   @param size The size (in bytes) to be sent with the FORMAT comand
+   @param size The size (in bytes) to be sent with the FORMAT command
    @param flag bit1+2: size mode
                  0 = use parameter size as far as it makes sense
                  1 = insist in size 0 even if there is a better default known
@@ -3715,7 +3715,7 @@ int mmc_format_unit(struct burn_drive *d, off_t size, int flag)
 	num_of_blocks = size / 2048;
 	mmc_int_to_four_char(c->page->data + 4, num_of_blocks);
 
-	if (flag & 128) { /* explicitely chosen format descriptor */
+	if (flag & 128) { /* explicitly chosen format descriptor */
 		/* use case: the app knows what to do */
 
 		ret = mmc_read_format_capacities(d, -1);

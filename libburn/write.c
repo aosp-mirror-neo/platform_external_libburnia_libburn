@@ -723,7 +723,7 @@ struct cue_sheet *burn_create_toc_entries(struct burn_write_opts *o,
 			runtime += 150;
 		} else if (pform != form) {
 
-		/* ts A70121 : This seems to be thw wrong test. Correct would
+		/* ts A70121 : This seems to be the wrong test. Correct would
 		   be to compare tar[]->mode or bit2 of ctladr.
 		*/ 
 
@@ -2097,7 +2097,7 @@ int burn_dvd_write_session(struct burn_write_opts *o,
 		   is not readable.
 
 		   By default the open session gets closed here before the new
-		   session is written. E.g. after writing a small dummy seesion
+		   session is written. E.g. after writing a small dummy session
 		   number 2 one can read session 1 and write session 3 which
 		   points to data of session 1.
 

@@ -144,7 +144,7 @@ int scsi_enumerate_drives(void)
 }
 
 
-/** Tells wether libburn has the given drive in use or exclusively reserved.
+/** Tells whether libburn has the given drive in use or exclusively reserved.
     If it is "open" then libburn will eventually call sg_release() on it when
     it is time to give up usage and reservation.
 */
@@ -180,7 +180,7 @@ int sg_release(struct burn_drive *d)
 }
 
 
-/** Sends a SCSI command to the drive, receives reply and evaluates wether
+/** Sends a SCSI command to the drive, receives reply and evaluates whether
     the command succeeded or shall be retried or finally failed.
     Returned SCSI errors shall not lead to a return value indicating failure.
     The callers get notified by c->error. An SCSI failure which leads not to
@@ -213,7 +213,7 @@ int sg_obtain_scsi_adr(char *path, int *bus_no, int *host_no, int *channel_no,
 }
 
 
-/** Tells wether a text is a persistent address as listed by the enumeration
+/** Tells whether a text is a persistent address as listed by the enumeration
     functions.
 */
 int sg_is_enumerable_adr(char *adr)

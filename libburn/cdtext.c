@@ -77,7 +77,7 @@ int burn_create_new_pack(int pack_type, int track_no, int double_byte,
 
 
 /* Plain implementation of polynomial division on a Galois field, where
-   addition and subtraction both are binary exor. Euclidian algorithm.
+   addition and subtraction both are binary exor. Euclidean algorithm.
    Divisor is x^16 + x^12 + x^5 + 1 = 0x11021.
 */
 static int crc_11021(unsigned char *data, int count, int flag)

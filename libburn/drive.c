@@ -191,7 +191,7 @@ int burn_drive_is_released(struct burn_drive *d)
 /* ts A60906 */
 /** Inquires drive status in respect to degree of app usage.
     @param return -2 = drive is forgotten 
-                  -1 = drive is closed (i.e. released explicitely)
+                  -1 = drive is closed (i.e. released explicitly)
                    0 = drive is open, not grabbed (after scan, before 1st grab)
                    1 = drive is grabbed but BURN_DRIVE_IDLE
                    2 = drive is grabbed, synchronous read/write interrupted
@@ -287,7 +287,7 @@ int burn_drive_inquire_media(struct burn_drive *d)
 
 	/* ts A61020 : d->status was set to BURN_DISC_BLANK as pure guess */
 
-        /* ts A71128 : run read_disc_info() for any recognizeable profile */
+        /* ts A71128 : run read_disc_info() for any recognizable profile */
 	if (d->current_profile > 0 || d->current_is_guessed_profile ||
 	    (d->mdata->p2a_valid > 0 &&
 		(d->mdata->cdr_write || d->mdata->cdrw_write ||
@@ -1327,7 +1327,7 @@ static int drive_getcaps(struct burn_drive *d, struct burn_drive_info *out)
 
 	/* ts A91112 */
 	/* Set default block types. The call d->probe_write_modes() is quite
-	   obtrusive. It may be performed explicitely by new API call
+	   obtrusive. It may be performed explicitly by new API call
              burn_drive_probe_cd_write_modes().
 	*/
 	if (out->write_dvdram || out->write_dvdr ||
@@ -1426,7 +1426,7 @@ int burn_drive_scan_sync(struct burn_drive_info *drives[],
 
 	*n_drives = 0;
 
-	/* ts A70907 : wether to scan from scratch or to extend */
+	/* ts A70907 : whether to scan from scratch or to extend */
 	for (i = 0; i < (int) sizeof(scanned); i++)
 		scanned[i] = 0;
 	if (flag & 1) {
@@ -1567,7 +1567,7 @@ void burn_drive_info_free(struct burn_drive_info drive_infos[])
 	/* ts A70903 : THIS IS WRONG !      (disabled now)
 	   It endangers multi drive usage.
 	   This call is not entitled to delete all drives, only the
-	   ones of the array which it receives a parmeter.
+	   ones of the array which it receives a parameter.
 
 	   Problem:  It was unclear how many items are listed in drive_infos
            Solution: Added a end marker element to any burn_drive_info array 
@@ -1915,7 +1915,7 @@ int burn_drive_scan_and_grab(struct burn_drive_info *drive_infos[], char* adr,
 	unsigned int n_drives;
 	int ret, i;
 
-	/* check wether drive address is already registered */
+	/* check whether drive address is already registered */
 	for (i = 0; i <= drivetop; i++)
 		if (drive_array[i].global_index >= 0)
 			if (strcmp(drive_array[i].devname, adr) == 0)
@@ -2020,7 +2020,7 @@ int burn_drive_get_adr(struct burn_drive_info *drive_info, char adr[])
 
 
 /* ts A60922 ticket 33 */
-/** Evaluate wether the given address would be enumerated by libburn */
+/** Evaluate whether the given address would be enumerated by libburn */
 int burn_drive_is_enumerable_adr(char *adr)
 {
 	return sg_is_enumerable_adr(adr);
@@ -3049,7 +3049,7 @@ int burn_disc_get_multi_caps(struct burn_drive *d, enum burn_write_types wt,
 			d->current_profile == 0x1a ||
 			d->current_profile == 0x43 
 	          ) {
-		/* DVD-RAM, overwriteable DVD-RW, DVD+RW, BD-RE */
+		/* DVD-RAM, overwritable DVD-RW, DVD+RW, BD-RE */
 		o->start_adr = 1;
 		ret = burn_disc_get_formats(d, &status, &size, &dummy,
 					&num_formats);
@@ -3308,7 +3308,7 @@ int burn_drive_equals_adr(struct burn_drive *d1, char *adr2_in, int role2)
 						/* one dir existing, one not */
 
 			/* Both directories exist. The basenames are equal.
-			   So the adresses are equal if the directories are
+			   So the addresses are equal if the directories are
 			   equal.*/
 		}
 		if (stbuf1.st_ino == stbuf2.st_ino &&
@@ -3432,7 +3432,7 @@ int burn_disc_get_media_id(struct burn_drive *d,
                    bit3= disc_app_code valid
                    bit4= Disc is unrestricted (URU bit)
                    bit5= Disc is nominally erasable (Erasable bit)
-                         This will be set with overwriteable media which
+                         This will be set with overwritable media which
                          libburn normally considers to be unerasable blank.
 */
 int burn_disc_get_cd_info(struct burn_drive *d, char disc_type[80],

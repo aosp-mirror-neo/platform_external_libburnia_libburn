@@ -52,7 +52,7 @@ double lib_start_time;
 */
 int burn_sg_open_o_excl = 1;
 
-/* ts A70403 : GNU/Linux: wether to use fcntl(,F_SETLK,)
+/* ts A70403 : GNU/Linux: whether to use fcntl(,F_SETLK,)
                       after open() of device files  */
 int burn_sg_fcntl_f_setlk = 1;
 
@@ -71,7 +71,7 @@ int burn_sg_use_family = 0;
    has been thoroughly tested. */
 int burn_sg_open_o_nonblock = 1;
 
-/* wether to take a busy drive as an error */
+/* whether to take a busy drive as an error */
 /* Caution: this is implemented by a rough hack and eventually leads
 	    to unconditional abort of the process  */
 int burn_sg_open_abort_busy = 0;
@@ -98,7 +98,7 @@ int burn_builtin_signal_action = 0;            /* burn_set_signal_handling() */
 volatile int burn_builtin_triggered_action = 0;       /*  burn_is_aborting() */
 
 
-/* ts A70223 : wether implemented untested profiles are supported */
+/* ts A70223 : whether implemented untested profiles are supported */
 int burn_support_untested_profiles = 0;
 
 /* ts A91111 :
@@ -112,7 +112,7 @@ int burn_sg_log_scsi = 0;
 
 /* ts B10312 :
    Whether to map random-access readonly files to drive role 4.
-   Else it is role 2 overwriteable drive
+   Else it is role 2 overwritable drive
 */
 int burn_drive_role_4_allowed = 0;
 

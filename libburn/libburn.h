@@ -144,7 +144,7 @@ enum burn_write_types
 	    With sequential DVD-R[W]:    Incremental Streaming
 	    With DVD+R and BD-R:         Track of open size
 	    With DVD-RAM, DVD+RW, BD-RE: Random Writeable (used sequentially)
-	    With overwriteable DVD-RW:   Rigid Restricted Overwrite 
+	    With overwritable DVD-RW:    Rigid Restricted Overwrite 
 	*/
 	BURN_WRITE_TAO,
 
@@ -235,7 +235,7 @@ enum burn_disc_status
 	      CD-R, CD-RW, DVD-R, DVD-RW, DVD+R, BD-R
 	    Blanked multi-session media (i.e. treated by burn_disc_erase())
 	      CD-RW, DVD-RW
-	    Overwriteable media with or without valid data
+	    Overwritable media with or without valid data
 	      DVD-RAM, DVD+RW, formatted DVD-RW, BD-RE
 	*/
 	BURN_DISC_BLANK,
@@ -675,7 +675,7 @@ struct burn_progress {
 	int track;
 	/** The total number of indices */
 	int indices;
-	/** Curent index. */
+	/** Current index. */
 	int index;
 	/** The starting logical block address */
 	int start_sector;
@@ -1328,7 +1328,7 @@ int burn_drive_get_bd_r_pow(struct burn_drive *drive);
 /* ts A61020 */
 /** Returns start and end lba of the media which is currently inserted
     in the given drive. The drive has to be grabbed to have hope for reply.
-    Shortcomming (not a feature): unless burn_disc_read_atip() was called 
+    Shortcoming (not a feature): unless burn_disc_read_atip() was called 
     only blank media will return valid info.
     @param drive The drive to query.
     @param start_lba Returns the start lba value
@@ -1386,7 +1386,7 @@ char *burn_guess_cd_manufacturer(int m_li, int s_li, int f_li,
                            This seems to be broken with my drives. The bit is
                            0 and the validity bit for disc_app_code is 0 too.
                      bit5= Disc is nominally erasable (Erasable bit)
-                           This will be set with overwriteable media which
+                           This will be set with overwritable media which
                            libburn normally considers to be unerasable blank.
     @return          1 success, <= 0 an error occurred
     @since 0.7.2
@@ -1819,7 +1819,7 @@ void burn_disc_read(struct burn_drive *drive, const struct burn_read_opts *o);
     with drive and media. This function is called by burn_disc_write() but
     an application might be interested in this check in advance.
     @param o The options for the writing operation.
-    @param disc The descrition of the disc to be created
+    @param disc The description of the disc to be created
     @param reasons Eventually returns a list of rejection reason statements
     @param silent 1= do not issue error messages , 0= report problems
     @return 1 ok, -1= no recordable media detected, 0= other failure
@@ -3334,7 +3334,7 @@ void burn_write_opts_set_obs_pad(struct burn_write_opts *opts, int pad);
     be consumed by the receiving storage device. This forcing keeps the memory
     from being clogged with lots of pending data for slow devices.
     @param opts   The write opts to change
-    @param rythm  Number of 2KB output blocks after which fsync(2) is
+    @param rhythm Number of 2KB output blocks after which fsync(2) is
                   performed.
                   -1 means no fsync()
                    0 means default
@@ -3343,7 +3343,7 @@ void burn_write_opts_set_obs_pad(struct burn_write_opts *opts, int pad);
                   Default is currently 8192 = 16 MB.
     @since 0.7.4
 */
-void burn_write_opts_set_stdio_fsync(struct burn_write_opts *opts, int rythm);
+void burn_write_opts_set_stdio_fsync(struct burn_write_opts *opts, int rhythm);
 
 
 /** Sets whether to read in raw mode or not
@@ -3628,12 +3628,12 @@ struct burn_multi_caps {
 	/** Profile number which was current when the reply was generated */
 	int current_profile;
 
-	/** Wether the current profile indicates CD media. 1=yes, 0=no */
+	/** Whether the current profile indicates CD media. 1=yes, 0=no */
 	int current_is_cd_profile;
 
         /* ts A70528 */
         /* @since 0.3.8 */
-	/** Wether the current profile is able to perform simulated write */
+	/** Whether the current profile is able to perform simulated write */
 	int might_simulate;
 };
 
@@ -3765,7 +3765,7 @@ void burn_version(int *major, int *minor, int *micro);
 /** Usage discussion:
 
 Some developers of the libburnia project have differing
-opinions how to ensure the compatibility of libaries
+opinions how to ensure the compatibility of libraries
 and applications.
 
 It is about whether to use at compile time and at runtime
@@ -4015,7 +4015,7 @@ int burn_is_aborting(int flag);
 /** Write data in random access mode.
     The drive must be grabbed successfully before calling this function which
     circumvents usual libburn session processing and rather writes data without
-    preparations or finalizing. This will work only with overwriteable media
+    preparations or finalizing. This will work only with overwritable media
     which are also suitable for burn_write_opts_set_start_byte(). The same
     address alignment restrictions as with this function apply. I.e. for DVD
     it is best to align to 32 KiB blocks (= 16 LBA units). The amount of data
@@ -4295,7 +4295,7 @@ int burn_drive_equals_adr(struct burn_drive *d1, char *adr2, int drive_role2);
 struct libdax_audioxtr;
 
 
-/** Open an audio file, check wether suitable, create extractor object.
+/** Open an audio file, check whether suitable, create extractor object.
     @param xtr Opaque handle to extractor. Gets attached extractor object.
     @param path Address of the audio file to extract. "-" is stdin (but might
                 be not suitable for all futurely supported formats).
@@ -4393,7 +4393,7 @@ BURN_END_DECLS
 /* The following experiments may be interesting in future:
 */
 
-/* Perform OPC explicitely.
+/* Perform OPC explicitly.
    # define Libburn_pioneer_dvr_216d_with_opC 1
 */
 

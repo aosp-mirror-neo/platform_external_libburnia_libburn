@@ -50,7 +50,7 @@ sg_initialize()         performs global initialization of the SCSI transport
                         facilities. Checks for compatibility of supporting
                         software components.
 
-sg_shutdown()           performs global finalizations and releases golbally
+sg_shutdown()           performs global finalizations and releases globally
                         acquired resources.
 
 sg_give_next_adr()      iterates over the set of potentially useful drive 
@@ -63,7 +63,7 @@ sg_dispose_drive()      finalizes adapter specifics of struct burn_drive
                         on destruction. Releases resources which were acquired
                         underneath scsi_enumerate_drives().
 
-sg_drive_is_open()      tells wether libburn has the given drive in use.
+sg_drive_is_open()      tells whether libburn has the given drive in use.
 
 sg_grab()               opens the drive for SCSI commands and ensures
                         undisturbed access.
@@ -71,7 +71,7 @@ sg_grab()               opens the drive for SCSI commands and ensures
 sg_release()            closes a drive opened by sg_grab()
 
 sg_issue_command()      sends a SCSI command to the drive, receives reply,
-                        and evaluates wether the command succeeded or shall
+                        and evaluates whether the command succeeded or shall
                         be retried or finally failed.
 
 sg_obtain_scsi_adr()    tries to obtain SCSI address parameters.
@@ -216,7 +216,7 @@ static char linux_ata_device_family[80] = {"/dev/hd%c"};
 
 /* Set this to 1 in order to get on stderr messages from ata_enumerate()
 */
-static int linux_ata_enumerate_verbous = 0;
+static int linux_ata_enumerate_verbose = 0;
 
 
 /** PORTING : ------ libburn portable headers and definitions ----- */
@@ -287,7 +287,7 @@ int mmc_function_spy(struct burn_drive *d, char * text);
 /* ------------------------------------------------------------------------ */
 
 /* ts A70413 */
-/* This finds out wether the software is running on kernel >= 2.6
+/* This finds out whether the software is running on kernel >= 2.6
 */
 static void sg_evaluate_kernel(void)
 {
@@ -305,7 +305,7 @@ static void sg_evaluate_kernel(void)
 
 
 /* ts A70314 */
-/* This installs the device file family if one was chosen explicitely
+/* This installs the device file family if one was chosen explicitly
    by burn_preset_device_open()
 */
 static void sg_select_device_family(void)
@@ -650,7 +650,7 @@ ex:;
    So libburn will by default use open(O_EXCL) first and afterwards
    as second assertion will use fcntl(F_SETLK). One lock more should not harm.
 */
-static int sg_fcntl_lock(int *fd, char *fd_name, int l_type, int verbous)
+static int sg_fcntl_lock(int *fd, char *fd_name, int l_type, int verbose)
 {
 	struct flock lockthing;
 	char msg[81];
@@ -671,7 +671,7 @@ static int sg_fcntl_lock(int *fd, char *fd_name, int l_type, int verbous)
 
 	ret = fcntl(*fd, F_SETLK, &lockthing);
 	if (ret == -1) {
-		if (verbous) {
+		if (verbose) {
 			sprintf(msg, "Device busy. Failed to fcntl-lock '%s'",
 					fd_name);
 			libdax_msgs_submit(libdax_messenger, -1, 0x00020008,
@@ -919,7 +919,7 @@ static int is_ata_drive(char *fname, int fd_in)
 	else
 		fd = sg_open_drive_fd(fname, 1);
 	if (fd == -1) {
-		if (linux_ata_enumerate_verbous)
+		if (linux_ata_enumerate_verbose)
 			fprintf(stderr,"open failed, errno=%d  '%s'\n",
 				errno, strerror(errno));
 		return 0;
@@ -930,7 +930,7 @@ static int is_ata_drive(char *fname, int fd_in)
 
 		/* not atapi */
 	if (!(tm.config & 0x8000) || (tm.config & 0x4000)) {
-		if (linux_ata_enumerate_verbous)
+		if (linux_ata_enumerate_verbose)
 			fprintf(stderr, "not marked as ATAPI\n");
 		if (fd_in < 0)
 			sg_close_drive_fd(fname, -1, &fd, 0);
@@ -940,7 +940,7 @@ static int is_ata_drive(char *fname, int fd_in)
 	/* if SG_IO fails on an atapi device, we should stop trying to 
 	   use hd* devices */
 	if (sgio_test(fd) == -1) {
-		if (linux_ata_enumerate_verbous)
+		if (linux_ata_enumerate_verbose)
 		  fprintf(stderr,
 			 "FATAL: sgio_test() failed: errno=%d  '%s'\n",
 			 errno, strerror(errno));
@@ -951,7 +951,7 @@ static int is_ata_drive(char *fname, int fd_in)
 	if (fd_in >= 0)
 		return 1;
 	if (sg_close_drive_fd(fname, -1, &fd, 1) <= 0) {
-		if (linux_ata_enumerate_verbous)
+		if (linux_ata_enumerate_verbose)
 			fprintf(stderr,
 				"cannot close properly, errno=%d  '%s'\n",
 				errno, strerror(errno));
@@ -1097,7 +1097,7 @@ static int sg_open_for_enumeration(char *fname, int flag)
 
 	fd = sg_open_drive_fd(fname, 1 + (flag & 1));
 	if (fd < 0) {
-		if (linux_sg_enumerate_debug || linux_ata_enumerate_verbous)
+		if (linux_sg_enumerate_debug || linux_ata_enumerate_verbose)
 			fprintf(stderr, "open failed, errno=%d  '%s'\n",
 				errno, strerror(errno));
 		return -1;
@@ -1113,7 +1113,7 @@ static void ata_enumerate(void)
 	int ret, i, fd = -1;
 	char fname[10];
 
-	if (linux_ata_enumerate_verbous)
+	if (linux_ata_enumerate_verbose)
 	  fprintf(stderr, "libburn_debug: linux_ata_device_family = %s\n",
 		  linux_ata_device_family);
 
@@ -1122,12 +1122,12 @@ static void ata_enumerate(void)
 
 	for (i = 0; i < 26; i++) {
 		sprintf(fname, linux_ata_device_family, 'a' + i);
-		if (linux_ata_enumerate_verbous)
+		if (linux_ata_enumerate_verbose)
 		  fprintf(stderr, "libburn_debug: %s : ", fname);
 
 		/* ts A51221 */
 		if (burn_drive_is_banned(fname)) {
-			if (linux_ata_enumerate_verbous)
+			if (linux_ata_enumerate_verbose)
 				fprintf(stderr, "not in whitelist\n");
 	continue;
 		}
@@ -1139,7 +1139,7 @@ static void ata_enumerate(void)
 	break;
 		if (ret == 0)
 	continue;
-		if (linux_ata_enumerate_verbous)
+		if (linux_ata_enumerate_verbose)
 		  fprintf(stderr, "accepting as drive without SCSI address\n");
 		enumerate_common(fname, fd, -1, -1, -1, -1, -1);
 	}
@@ -1667,7 +1667,7 @@ int scsi_enumerate_drives(void)
 }
 
 
-/** Tells wether libburn has the given drive in use or exclusively reserved.
+/** Tells whether libburn has the given drive in use or exclusively reserved.
     If it is "open" then libburn will eventually call sg_release() on it when
     it is time to give up usage and reservation.
 */
@@ -1722,7 +1722,7 @@ int sg_grab(struct burn_drive *d)
 	/* ts A60813 - A60822
 	   After enumeration the drive fd is probably still open.
 	   -1337 is the initial value of burn_drive.fd and the value after
-	   relase of drive. Unclear why not the official error return
+	   release of drive. Unclear why not the official error return
 	   value -1 of open(2) war used. */
 	if(! burn_drive_is_open(d)) {
 		char msg[120];
@@ -1847,7 +1847,7 @@ drive_is_in_use:;
 }
 
 
-/** PORTING: Is mainly about the call to sg_close_drive() and wether it
+/** PORTING: Is mainly about the call to sg_close_drive() and whether it
              implements the demanded functionality.
 */
 /** Gives up the drive for SCSI commands and releases eventual access locks.
@@ -2045,7 +2045,7 @@ static void react_on_drive_loss(struct burn_drive *d, struct command *c,
 	scsi_log_message(d, fp, "--- SG_IO: Gave up connection to drive", 0);
 }
 
-/** Sends a SCSI command to the drive, receives reply and evaluates wether
+/** Sends a SCSI command to the drive, receives reply and evaluates whether
     the command succeeded or shall be retried or finally failed.
     Returned SCSI errors shall not lead to a return value indicating failure.
     The callers get notified by c->error. An SCSI failure which leads not to
@@ -2276,7 +2276,7 @@ static int sg_obtain_scsi_adr_fd(char *path, int fd_in,
 	};
  	struct my_scsi_idlun idlun;
 
-	/* valgrind called idlun unitialized because it is blind for ioctl */
+	/* valgrind called idlun uninitialized because it is blind for ioctl */
 	idlun.x = 0;
 	idlun.host_unique_id = 0;
 
@@ -2345,7 +2345,7 @@ int sg_obtain_scsi_adr(char *path, int *bus_no, int *host_no, int *channel_no,
 
 
 /* ts A60922 ticket 33 : called from drive.c */
-/** Tells wether a text is a persistent address as listed by the enumeration
+/** Tells whether a text is a persistent address as listed by the enumeration
     functions.
 */
 int sg_is_enumerable_adr(char *adr)

@@ -419,7 +419,7 @@ void burn_disc_erase(struct burn_drive *drive, int fast)
 
 	/* ts A70103 moved up from burn_disc_erase_sync() */
 	/* ts A60825 : allow on parole to blank appendable CDs */
-	/* ts A70131 : allow blanking of overwriteable DVD-RW (profile 0x13) */
+	/* ts A70131 : allow blanking of overwritable DVD-RW (profile 0x13) */
 	/* ts A70216 : allow blanking of CD-RW or DVD-RW in any regular state
 	               and of any kind of full media */
 	/* ts A70909 : the willingness to burn any BURN_DISC_FULL media is

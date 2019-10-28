@@ -425,7 +425,7 @@ Range "elmom"              :  0x00010000 to 0x0001ffff
 ------------------------------------------------------------------------------
 Range "scdbackup"          :  0x00020000 to 0x0002ffff
 
- Acessing and defending drives:
+ Accessing and defending drives:
 
  0x00020001 (SORRY,LOW)    = Cannot open busy device
  0x00020002 (SORRY,HIGH)   = Encountered error when closing drive
@@ -555,7 +555,7 @@ Range "scdbackup"          :  0x00020000 to 0x0002ffff
  0x0002016e (DEBUG,HIGH)   = MODE SENSE page 2A too short
  0x0002016f (DEBUG,HIGH)   = Unable to grab scanned drive
  0x00020170 (NOTE,HIGH)    = Closing open session before writing new one
- 0x00020171 (NOTE,HIGH)    = Closing BD-R with accidentaly open session
+ 0x00020171 (NOTE,HIGH)    = Closing BD-R with accidentally open session
  0x00020172 (SORRY,HIGH)   = Read start address larger than number of readable blocks
  0x00020173 (FAILURE,HIGH) = Drive tells NWA smaller than last written address
  0x00020174 (SORRY,HIGH)   = Fifo alignment does not allow desired read size
@@ -580,7 +580,7 @@ Range "scdbackup"          :  0x00020000 to 0x0002ffff
  0x00020187 (NOTE,HIGH)    = Track not marked as damaged. No action taken.
  0x00020188 (FAILURE,HIGH) = Cannot close damaged track on given media type
  0x00020189 (FATAL,HIGH)   = Drive is already grabbed by libburn
- 0x0002018a (SORRY,HIGH)   = Timeout exceeded. Retry cancled.
+ 0x0002018a (SORRY,HIGH)   = Timeout exceeded. Retry canceled.
  0x0002018b (FAILURE,HIGH) = Too many CD-TEXT packs
  0x0002018c (FAILURE,HIGH) = CD-TEXT pack type out of range
  0x0002018d (FAILURE,HIGH) = CD-TEXT block number out of range
@@ -646,11 +646,11 @@ Range "vreixo"              :  0x00030000 to 0x0003ffff
  0x0003ffbc (FAILURE,HIGH) = Image already bootable
  0x0003ffbb (FAILURE,HIGH) = Trying to use an invalid file as boot image
  0x0003ff80 (FAILURE,HIGH) = Error on file operation
- 0x0003ff7f (FAILURE,HIGH) = Trying to open an already openned file
+ 0x0003ff7f (FAILURE,HIGH) = Trying to open an already opened file
  0x0003ff7e (FAILURE,HIGH) = Access to file is not allowed
  0x0003ff7d (FAILURE,HIGH) = Incorrect path to file
  0x0003ff7c (FAILURE,HIGH) = The file does not exist in the filesystem
- 0x0003ff7b (FAILURE,HIGH) = Trying to read or close a file not openned
+ 0x0003ff7b (FAILURE,HIGH) = Trying to read or close a file not opened
  0x0003ff7a (FAILURE,HIGH) = Directory used where no dir is expected
  0x0003ff79 (FAILURE,HIGH) = File read error
  0x0003ff78 (FAILURE,HIGH) = Not dir used where a dir is expected
@@ -701,7 +701,7 @@ X 0x00030203 (HINT,MEDIUM)   = Unsupported El-Torito feature
 X 0x00030204 (SORRY,HIGH)    = Invalid file to be an El-Torito image
 X 0x00030205 (WARNING,MEDIUM)= Cannot properly patch isolinux image
 X 0x00030206 (WARNING,MEDIUM)= Copying El-Torito from a previous image without
-X                              enought info about it
+X                              enough info about it
 X 0x00030301 (NOTE,MEDIUM)   = Unsupported file type for Joliet tree
 
 

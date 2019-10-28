@@ -286,7 +286,7 @@ void burn_packet_process(struct burn_drive *d, unsigned char *data,
 *//* write(o->datafd, data, 2352); */
 }
 
-/*  so yeah, when you uncomment these, make them write zeros insted of crap
+/*  so yeah, when you uncomment these, make them write zeros instead of crap
 static void write_empty_sector(int fd)
 {
 	static char sec[2352], initialized = 0;

@@ -49,11 +49,11 @@ struct burn_write_opts
 	/* ts A61222 : Start address for media which offer a choice */
 	off_t start_byte;
 
-	/* ts A70213 : Wether to fill up the available space on media */
+	/* ts A70213 : Whether to fill up the available space on media */
 	int fill_up_media;
 
-	/* ts A70303 : Wether to override conformance checks:
-	   - the check wether CD write+block type is supported by the drive 
+	/* ts A70303 : Whether to override conformance checks:
+	   - the check whether CD write+block type is supported by the drive 
 	*/
 	int force_is_set;
 

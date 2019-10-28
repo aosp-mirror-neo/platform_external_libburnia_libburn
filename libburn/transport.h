@@ -277,7 +277,7 @@ struct burn_drive
 	               (which could need closing after write) */
 	int needs_close_session;
 	/* ts A71003 : whether a random write operation was done and no
-	               synchronize chache has happened yet */
+	               synchronize cache has happened yet */
 	int needs_sync_cache;
 
 	/* ts A80412 : whether to use WRITE12 with Streaming bit set

@@ -43,7 +43,7 @@ an unreadable disc */
 
 
 /* This is a generic OS oriented function wrapper which compensates
-   shortcommings of read() in respect to a guaranteed amount of return data.
+   shortcomings of read() in respect to a guaranteed amount of return data.
    See  man 2 read , paragraph "RETURN VALUE".
 */
 static int read_full_buffer(int fd, unsigned char *buffer, int size)

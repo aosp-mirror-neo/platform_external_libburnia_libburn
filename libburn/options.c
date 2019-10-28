@@ -536,16 +536,16 @@ void burn_write_opts_set_obs_pad(struct burn_write_opts *opts, int pad)
 
 
 /* ts A91115: API */
-void burn_write_opts_set_stdio_fsync(struct burn_write_opts *opts, int rythm)
+void burn_write_opts_set_stdio_fsync(struct burn_write_opts *opts, int rhythm)
 {
-	if (rythm == -1)
+	if (rhythm == -1)
 		opts->stdio_fsync_size = -1; /* never */
-	else if (rythm == 0)
+	else if (rhythm == 0)
 		opts->stdio_fsync_size = Libburn_stdio_fsync_limiT;
-	else if (rythm == 1)
+	else if (rhythm == 1)
 		opts->stdio_fsync_size = 0; /* only at end of writing */
-	else if (rythm >= 32)
-		opts->stdio_fsync_size = rythm;
+	else if (rhythm >= 32)
+		opts->stdio_fsync_size = rhythm;
 }
 
 

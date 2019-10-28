@@ -12,7 +12,7 @@
         -DDDLPA_C_STANDALONE -o ddlpa ddlpa.c
 
    The system macros enable 64-bit off_t and open(2) flag O_LARGEFILE, which
-   are not absolutely necessary but explicitely take into respect that
+   are not absolutely necessary but explicitly take into respect that
    our devices can offer more than 2 GB of addressable data. 
 
    Run test program:
