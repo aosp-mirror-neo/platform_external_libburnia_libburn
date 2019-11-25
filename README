@@ -11,7 +11,7 @@ Still containing parts of Libburn. By Derek Foreman <derek@signalmarketing.com>
 and Ben Jansens <xor@orodu.net>
 Copyright (C) 2002-2006  Derek Foreman and Ben Jansens
 
-     http://files.libburnia-project.org/releases/libburn-1.5.2.tar.gz
+     http://files.libburnia-project.org/releases/libburn-1.5.2.pl01.tar.gz
 
 ------------------------------------------------------------------------------
 
@@ -19,9 +19,9 @@ Copyright (C) 2002-2006  Derek Foreman and Ben Jansens
 
                                 From tarball
 
-Obtain libburn-1.5.2.tar.gz, take it to a directory of your choice and do:
+Obtain libburn-1.5.2.pl01.tar.gz, take it to a directory of your choice and do:
 
-   tar xzf libburn-1.5.2.tar.gz
+   tar xzf libburn-1.5.2.pl01.tar.gz
    cd libburn-1.5.2
    ./configure --prefix=/usr
    make
@@ -790,6 +790,10 @@ Project history as far as known to me:
   the drive announces. xorriso can now set GPT type GUIDs with appended
   partitions and the ISO partition.
   All three libraries got some rarely triggered bugs fixed.
+
+- Mon Nov 25 2019 patch release 1.5.2.pl01
+  cdrskin did not properly burn multiple tracks. Track 1 was slow and burning
+  stalled before track 2. Regression introduced by 1.5.0.
 
 ------------------------------------------------------------------------------
 
