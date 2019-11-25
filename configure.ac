@@ -218,11 +218,12 @@ CFLAGS="$STATVFS_DEF $CFLAGS"
 
 dnl ts A91122
 AC_ARG_ENABLE(track-src-odirect,
-[  --enable-track-src-odirect Enable use of O_DIRECT with track input, default=no],
+[  --enable-track-src-odirect   Banned for now: (Enable use of O_DIRECT with track input, default=no)],
                , enable_track_src_odirect=no)
 if test x$enable_track_src_odirect = xyes; then
-    LIBBURN_O_DIRECT_DEF="-DLibburn_read_o_direcT"
-    echo "enabled  use of O_DIRECT with track input"
+#    LIBBURN_O_DIRECT_DEF="-DLibburn_read_o_direcT"
+#    echo "enabled  use of O_DIRECT with track input"
+    echo "REFUSED  to enable use of O_DIRECT with track input because of cdrskin multi-track bug"
 else
     LIBBURN_O_DIRECT_DEF=
     echo "disabled use of O_DIRECT with track input"

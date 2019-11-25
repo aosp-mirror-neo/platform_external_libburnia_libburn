@@ -28,7 +28,20 @@
 #ifndef Cdrfifo_standalonE
 /* for burn_os_alloc_buffer() */
 #include "../libburn/libburn.h"
-#define Libburn_has_open_trac_srC 1
+
+/* ts B91124:
+   DISABLED, because this spoils multi-track burning by slowing down first
+   track and stalling before the second track begins. Obviously a problem
+   with chained input and waiting for full O_DRIECT suitable read chunks.
+   DO NOT ENABLE before the wait code in this source file is fixed.
+   That long, ./configure option --enable-track-src-odirect must not
+   get into effect in libburn. NO -DLibburn_read_o_direcT either.
+
+   For extra safety, O_DIRECT has been banned in libburn/sg-linux.c too.
+
+  # def ine Libburn_has_open_trac_srC 1
+*/
+
 #endif
 
 #include "cdrfifo.h"

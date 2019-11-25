@@ -111,6 +111,15 @@ Hint: You should also look into sg-freebsd-port.c, which is a younger and
 
 /** PORTING : ------- OS dependent headers and definitions ------ */
 
+#ifdef Libburn_read_o_direcT
+/* ts B91124:
+   DISABLED, because this spoils multi-track burning of cdrskin by a hard to
+   fix bug in cdrskin/cdrfifo.c
+   DO NOT ENABLE before the wait code in that source file is fixed.
+*/
+#undef Libburn_read_o_direcT
+#endif
+
 
 #ifdef Libburn_read_o_direcT
 # ifndef _GNU_SOURCE
