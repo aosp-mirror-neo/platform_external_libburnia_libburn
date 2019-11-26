@@ -150,12 +150,12 @@ LT_RELEASE=$BURN_MAJOR_VERSION.$BURN_MINOR_VERSION.$BURN_MICRO_VERSION
 dnl
 dnl ### This is the release version libburn-1.5.2
 dnl This is the development version after above release version
-dnl LT_CURRENT++, LT_AGE++ has not yet happened.
-dnl ### LT_CURRENT++, LT_AGE++ has happened meanwhile.
+dnl ### LT_CURRENT++, LT_AGE++ has not yet happened.
+dnl LT_CURRENT++, LT_AGE++ has happened meanwhile.
 dnl
-dnl SONAME = 109 - 105 = 4 . Linux library name = libburn.so.4.105.0
-LT_CURRENT=109
-LT_AGE=105
+dnl SONAME = 110 - 106 = 4 . Linux library name = libburn.so.4.106.0
+LT_CURRENT=110
+LT_AGE=106
 LT_REVISION=0
 LT_CURRENT_MINUS_AGE=`expr $LT_CURRENT - $LT_AGE`
 
