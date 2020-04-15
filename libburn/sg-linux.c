@@ -383,11 +383,16 @@ static int sg_exchange_scd_for_sr(char *fname, int flag)
 /* This is an early stage version of scsi_log_cmd.
    >>> It will become obsolete when the /tmp file handler is moved into
    >>> scsi_log_command().
+   @param flag  bit0= data direction is FROM_DRIVE
 */
 static int sgio_log_cmd(unsigned char *cmd, int cmd_len, FILE *fp_in, int flag)
 {
 	FILE *fp = fp_in;
 	int ret = 0;
+	int data_dir = NO_TRANSFER;
+
+	if (flag & 1)
+		data_dir = FROM_DRIVE;
 
 	/* >>> ts B11110 : move this into scsi_log_command() */
 	if (fp == NULL && (burn_sg_log_scsi & 1)) {
@@ -398,10 +403,13 @@ static int sgio_log_cmd(unsigned char *cmd, int cmd_len, FILE *fp_in, int flag)
 	}
 
 	if (fp != NULL)
-		ret = scsi_log_command(cmd, cmd_len, NO_TRANSFER, NULL, 0,
+		ret = scsi_log_command(cmd, cmd_len, data_dir, NULL, 0,
 					fp, flag);
 	if (fp_in == NULL && fp != NULL)
 		fclose(fp);
+	if (fp == stderr || !(burn_sg_log_scsi & 2))
+		return ret;
+	ret = scsi_log_command(cmd, cmd_len, data_dir, NULL, 0, stderr, 0);
 	return ret;
 }
 
@@ -473,7 +481,7 @@ static int sgio_inquiry_cd_drive(int fd, char *fname)
 	s.dxfer_len = 36;
 	s.usr_ptr = NULL;
 
-	sgio_log_cmd(s.cmdp, s.cmd_len, NULL, 0);
+	sgio_log_cmd(s.cmdp, s.cmd_len, NULL, 1);
 
 	c_start_time = burn_get_time(0);
 	ret = ioctl(fd, SG_IO, &s);
