@@ -1904,6 +1904,9 @@ int burn_dvd_write_track(struct burn_write_opts *o,
 	/* ts A70213 : eventually expand size of track to max */
 	burn_track_apply_fillup(t, d->media_capacity_remaining, 0);
 
+	/* ts C00806 : Consider the track state changed by try to open */
+	d->medium_state_changed = 1;
+
 	if (d->current_profile == 0x11 || d->current_profile == 0x14 ||
 	    d->current_profile == 0x15) {
 		/* DVD-R, DVD-RW Sequential, DVD-R/DL Sequential */
@@ -3074,6 +3077,7 @@ return crap.  so we send the command, then ignore the result.
 		/* goto fail_wo_sync; */
 #endif /* Libburn_write_with_function_print_cuE */
 
+		d->medium_state_changed = 1;
 		ret = 1;
 		if (o->write_type == BURN_WRITE_SAO)
 			ret = d->send_cue_sheet(d, sheet);

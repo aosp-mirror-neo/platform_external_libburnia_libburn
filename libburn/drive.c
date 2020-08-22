@@ -1,7 +1,7 @@
 /* -*- indent-tabs-mode: t; tab-width: 8; c-basic-offset: 8; -*- */
 
 /* Copyright (c) 2004 - 2006 Derek Foreman, Ben Jansens
-   Copyright (c) 2006 - 2017 Thomas Schmitt <scdbackup@gmx.net>
+   Copyright (c) 2006 - 2020 Thomas Schmitt <scdbackup@gmx.net>
    Provided under GPL version 2 or later.
 */
 
@@ -556,6 +556,7 @@ struct burn_drive *burn_drive_register(struct burn_drive *d)
 	d->thread_pid = 0;
 	d->thread_pid_valid = 0;
 	memset(&(d->thread_tid), 0, sizeof(d->thread_tid));
+	d->medium_state_changed = 0;
 	d->toc_entries = 0;
 	d->toc_entry = NULL;
 	d->disc = NULL;
@@ -883,6 +884,7 @@ void burn_disc_erase_sync(struct burn_drive *d, int fast)
 	d->progress.sector = 0;
 #endif /* Libburn_reset_progress_asynC */
 
+	d->medium_state_changed = 1;
 	d->erase(d, fast);
 	d->busy = BURN_DRIVE_ERASING;
 
@@ -972,6 +974,7 @@ void burn_disc_format_sync(struct burn_drive *d, off_t size, int flag)
 	stages = 1 + ((flag & 1) && size > 1024 * 1024);
 	d->cancel = 0;
 	d->busy = BURN_DRIVE_FORMATTING;
+	d->medium_state_changed = 1;
 
 	ret = d->format_unit(d, size, flag & 0xfff6); /* forward bits */
 	if (ret <= 0)

@@ -1,7 +1,7 @@
 /* -*- indent-tabs-mode: t; tab-width: 8; c-basic-offset: 8; -*- */
 
 /* Copyright (c) 2004 - 2006 Derek Foreman, Ben Jansens
-   Copyright (c) 2006 - 2016 Thomas Schmitt <scdbackup@gmx.net>
+   Copyright (c) 2006 - 2020 Thomas Schmitt <scdbackup@gmx.net>
    Provided under GPL version 2 or later.
 */
 
@@ -437,6 +437,10 @@ struct burn_drive
 
 	/* ts B90513 */
 	unsigned int write_retry_count;
+
+	/* ts C00806 */
+	/* 0=no change, 1=change, -1=already urged OS to revalidate medium */
+	int medium_state_changed;
 
 /* transport functions */
 	int (*grab) (struct burn_drive *);

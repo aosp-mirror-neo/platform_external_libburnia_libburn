@@ -1,7 +1,7 @@
 /* -*- indent-tabs-mode: t; tab-width: 8; c-basic-offset: 8; -*- */
 
 /* Copyright (c) 2004 - 2006 Derek Foreman, Ben Jansens
-   Copyright (c) 2006 - 2019 Thomas Schmitt <scdbackup@gmx.net>
+   Copyright (c) 2006 - 2020 Thomas Schmitt <scdbackup@gmx.net>
    Provided under GPL version 2 or later.
 */
 
@@ -820,6 +820,63 @@ static int sg_release_siblings(int sibling_fds[],
 }
 
 
+/* ts C00806 */
+/** Urges the operating system to re-assess drive and medium state
+*/
+static int sg_os_revalidate_disc(struct burn_drive *d)
+{
+
+/* <<< only for compiler tests */
+/* # def ine BURN_CDROM_REVALIDATE 0x5332 */
+
+/* >>> if ioctl CDROM_REVALIDATE is accepted in the kernel:
+ #i fdef CDROM_REVALIDATE
+ #d efine BURN_CDROM_REVALIDATE CDROM_REVALIDATE
+ #e ndif
+*/
+
+#ifdef BURN_CDROM_REVALIDATE
+
+	int i, ioctl_ret, reval_n_wait= 3, ret, os_errno;
+	char *msg = NULL;
+
+	BURN_ALLOC_MEM(msg, char, 161);
+
+	for(i = 0; i < reval_n_wait; i++) {
+		os_errno = 0;
+		ioctl_ret = ioctl(d->fd, BURN_CDROM_REVALIDATE, 0);
+		if(ioctl_ret == 0)
+	break;
+		os_errno = errno;
+		if(errno != EBUSY)
+	break;
+		if(i < reval_n_wait - 1)
+			usleep(2000000);
+	}
+	if(ioctl_ret == 0) {
+		sprintf(msg,
+			"ioctl(CDROM_REVALIDATE) succeeded in try #%d", i);
+		ret = 1;
+	} else {
+		sprintf(msg, "ioctl(CDROM_REVALIDATE) failed");
+		ret = 0;
+	}
+	libdax_msgs_submit(libdax_messenger, d->global_index,
+		0x00000002, LIBDAX_MSGS_SEV_DEBUG, LIBDAX_MSGS_PRIO_HIGH,
+		msg, os_errno, 0);
+ex:
+	BURN_FREE_MEM(msg);
+	return ret;
+
+#else
+
+	return 0;
+
+#endif /* CDROM_REVALIDATE */
+
+}
+
+
 /* ts A60926 */
 static int sg_close_drive(struct burn_drive *d)
 {
@@ -829,6 +886,9 @@ static int sg_close_drive(struct burn_drive *d)
 		return 0;
 	sg_release_siblings(d->sibling_fds, d->sibling_fnames,
 				&(d->sibling_count));
+	if(d->medium_state_changed > 0)
+		sg_os_revalidate_disc(d);
+	d->medium_state_changed = -1;
 	ret = sg_close_drive_fd(d->devname, d->global_index, &(d->fd), 0);
 	return ret;
 }
