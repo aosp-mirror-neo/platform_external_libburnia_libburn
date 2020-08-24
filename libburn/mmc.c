@@ -2832,6 +2832,8 @@ int mmc_set_streaming(struct burn_drive *d,
 	pd = c->page->data;
 
 	pd[0] = 0; /* WRC=0 (Default Rotation Control), RDD=Exact=RA=0 */
+	if (d->set_streaming_exact_bit)
+		pd[0] |= 2; /* Exact= 1 */
 
 	if (w_speed == 0)
 		w_speed = 0x10000000; /* ~ 2 TB/s */
@@ -2849,8 +2851,9 @@ int mmc_set_streaming(struct burn_drive *d,
 	} else
 		eff_end_lba = end_lba;
 
-	sprintf(msg, "mmc_set_streaming: end_lba=%d ,  r=%d ,  w=%d",
-		eff_end_lba, r_speed, w_speed);
+	sprintf(msg,
+		"mmc_set_streaming: end_lba=%d ,  r=%d ,  w=%d ,  exact=%d",
+		eff_end_lba, r_speed, w_speed, !!(pd[0] & 2));
 	libdax_msgs_submit(libdax_messenger, d->global_index, 0x00000002,
 			   LIBDAX_MSGS_SEV_DEBUG, LIBDAX_MSGS_PRIO_ZERO,
 			   msg, 0, 0);
@@ -2886,6 +2889,8 @@ int mmc_set_streaming(struct burn_drive *d,
 				 LIBDAX_MSGS_SEV_DEBUG : LIBDAX_MSGS_SEV_SORRY,
 				LIBDAX_MSGS_PRIO_HIGH, msg, 0, 0);
 		}
+		if (key != 0)
+			d->set_streaming_err = 1;
 		{ret = 0; goto ex;}
 	}
 	ret = 1;
@@ -2963,8 +2968,8 @@ void mmc_set_speed(struct burn_drive *d, int r, int w)
 
 	/* ts A61221 : try to set DVD speed via command B6h */
 	if (strstr(d->current_profile_text, "DVD") == d->current_profile_text
-	    ||
-	    strstr(d->current_profile_text, "BD") == d->current_profile_text) {
+	    || strstr(d->current_profile_text, "BD") == d->current_profile_text
+	    || d->set_streaming_exact_bit) {
 		ret = mmc_set_streaming(d, r, w, end_lba);
 		if (ret != 0)
 			return; /* success or really fatal failure */ 

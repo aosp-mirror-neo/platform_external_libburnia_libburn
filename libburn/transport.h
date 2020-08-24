@@ -442,6 +442,13 @@ struct burn_drive
 	/* 0=no change, 1=change, -1=already urged OS to revalidate medium */
 	int medium_state_changed;
 
+	/* ts C00822 */
+	/* If set, use Exact bit with SET STREAMING and use SET STREAMING
+	   even if the medium is a CD.
+	 */
+	int set_streaming_exact_bit;
+	int set_streaming_err;
+
 /* transport functions */
 	int (*grab) (struct burn_drive *);
 	int (*release) (struct burn_drive *);

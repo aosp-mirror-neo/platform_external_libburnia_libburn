@@ -2996,7 +2996,7 @@ int burn_track_get_counters(struct burn_track *t,
                             off_t *read_bytes, off_t *written_bytes);
 
 
-/** Sets drive read and write speed
+/** Sets drive read and write speed.
     Note: "k" is 1000, not 1024.
           1xCD = 176.4 k/s, 1xDVD = 1385 k/s, 1xBD = 4496 k/s.
           Fractional speeds should be rounded up. Like 4xCD = 706.
@@ -3005,6 +3005,22 @@ int burn_track_get_counters(struct burn_track *t,
     @param write Write speed in k/s (0 is max, -1 is min). 
 */
 void burn_drive_set_speed(struct burn_drive *d, int read, int write);
+
+
+/* ts C00822 */
+/** Sets drive read and write speed using the "Exact" bit of SCSI command
+    SET STREAMING. This command will be used even if a CD medium is present.
+    MMC specifies that with the Exact bit the desired speed settings shall
+    either be obeyed by the drive exactly, or that the drive shall indicate
+    failure and not accept the settings.
+    The call parameters have the same meaning as with burn_drive_set_speed().
+    @param d The drive to set speed for. It must be a role 1 drive.
+    @param read Read speed in k/s (0 is max, -1 is min).
+    @param write Write speed in k/s (0 is max, -1 is min). 
+    @return 1=success , 0=failure
+    @since 1.5.4
+*/
+int burn_drive_set_speed_exact(struct burn_drive *d, int read, int write);
 
 
 /* ts A70711 */

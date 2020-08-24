@@ -557,6 +557,8 @@ struct burn_drive *burn_drive_register(struct burn_drive *d)
 	d->thread_pid_valid = 0;
 	memset(&(d->thread_tid), 0, sizeof(d->thread_tid));
 	d->medium_state_changed = 0;
+	d->set_streaming_exact_bit = 0;
+	d->set_streaming_err = 0;
 	d->toc_entries = 0;
 	d->toc_entry = NULL;
 	d->disc = NULL;
@@ -1599,6 +1601,22 @@ void burn_drive_set_speed(struct burn_drive *d, int r, int w)
 	d->set_speed(d, r, w);
 }
 
+int burn_drive_set_speed_exact(struct burn_drive *d, int r, int w)
+{
+	int sose;
+
+	d->nominal_write_speed = w;
+	if(d->drive_role != 1)
+		return 0;
+	sose = d->silent_on_scsi_error;
+	d->silent_on_scsi_error = 3;
+	d->set_streaming_err = 0;
+	d->set_streaming_exact_bit = 1;
+	d->set_speed(d, r, w);
+	d->silent_on_scsi_error = sose;
+	d->set_streaming_exact_bit = 0;
+	return !d->set_streaming_err;
+}
 
 /* ts A70711  API function */
 int burn_drive_set_buffer_waiting(struct burn_drive *d, int enable,
