@@ -29,6 +29,9 @@ processing tracks of more than 2 GB size.
 */
 #include <sys/types.h>
 
+/* For struct timeval */
+#include <sys/time.h>
+
 #ifndef DOXYGEN
 
 #if defined(__cplusplus)
@@ -3013,6 +3016,9 @@ void burn_drive_set_speed(struct burn_drive *d, int read, int write);
     MMC specifies that with the Exact bit the desired speed settings shall
     either be obeyed by the drive exactly, or that the drive shall indicate
     failure and not accept the settings.
+    But many drives reply no error and nevertheless adjust their read speed
+    only coarsly or ignore the setting after a few MB of fast read attempts.
+
     The call parameters have the same meaning as with burn_drive_set_speed().
     @param d The drive to set speed for. It must be a role 1 drive.
     @param read Read speed in k/s (0 is max, -1 is min).
@@ -3022,6 +3028,44 @@ void burn_drive_set_speed(struct burn_drive *d, int read, int write);
 */
 int burn_drive_set_speed_exact(struct burn_drive *d, int read, int write);
 
+
+/* ts C00822 */
+/** Waits until the time has elapsed since the given previous time to transmit
+    the given byte count with the given speed in KB/second (KB = 1000 bytes).
+    This call may be used between random access read operations like
+    burn_read_data() in order to force a slower speed than the drive is
+    willing to use if it gets read requests as fast as it delivers data.
+
+    The parameter us_corr carries microseconds of time deviations from one
+    call to the next one. Such deviations may happen because of small
+    inexactnesses of the sleeper function and because of temporary delays
+    in the data supply so that sleeping for a negative time span would have
+    been necessary. The next call will reduce or enlarge its own sleeping
+    period by this value.
+    
+    @param kb_per_second   the desired speed in 1000 bytes per second.
+                           Supplied by the caller.
+    @max_corr              the maximum backlog in microseconds which shall
+                           be compensated by the next call. Supplied by the
+                           caller. Not more than 1 billion = 1000 seconds.
+    @param prev_time       time keeper updated by burn_nominal_slowdown().
+                           The caller provides the memory and elsewise should
+                           carry it unchanged from call to call.
+    @param us_corr         updated by burn_nominal_slowdown(). See above.
+                           The caller provides the memory and elsewise should
+                           carry it unchanged from call to call.
+    @param b_since_prev    byte count since the previous call. This number
+                           has to be counted and supplied by the caller.
+    @param flag            Bitfield for control purposes:
+                           bit0= initialize *prev_time and *us_corr,
+                                 ignore other parameters, do not wait
+    @return 2=no wait because no usable kb_per_second , 1=success , 0=failure
+    @since 1.5.4
+*/
+int burn_nominal_slowdown(int kb_per_second, int max_corr,
+			  struct timeval *prev_time,
+			  int *us_corr, off_t b_since_prev, int flag);
+   
 
 /* ts A70711 */
 /** Controls the behavior with writing when the drive buffer is suspected to
@@ -4067,10 +4111,13 @@ int burn_random_access_write(struct burn_drive *d, off_t byte_address,
 
 /* ts A81215 */
 /** Inquire the maximum amount of readable data.
-    It is supposed that all LBAs in the range from 0 to capacity - 1
-    can be read via burn_read_data() although some of them may never have been
-    recorded. If tracks are recognizable then it is better to only read
-    LBAs which are part of some track.
+    On DVD and BD it is supposed that all LBAs in the range from 0 to
+    capacity - 1 can be read via burn_read_data() although some of them may
+    never have been recorded. With multi-session CD there have to be
+    expected unreadable TAO Run-out blocks.
+    If tracks are recognizable then it is better to only read LBAs which
+    are part of some track and on CD to be cautious about the last two blocks
+    of each track which might be TAO Run-out blocks.
     If the drive is actually a large file or block device, then the capacity
     is curbed to a maximum of 0x7ffffff0 blocks = 4 TB - 32 KB.
     @param d            The drive from which to read

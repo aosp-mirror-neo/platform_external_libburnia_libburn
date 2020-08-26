@@ -108,6 +108,7 @@ burn_msf_to_sectors;
 burn_msgs_obtain;
 burn_msgs_set_severities;
 burn_msgs_submit;
+burn_nominal_slowdown;
 burn_obtain_profile_name;
 burn_offst_source_new;
 burn_os_alloc_buffer;

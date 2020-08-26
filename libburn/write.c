@@ -2765,30 +2765,57 @@ void burn_stdio_mmc_sync_cache(struct burn_drive *d)
 }
 
 
-/* ts A70912 */
-/* Enforces eventual nominal write speed.
-   @param flag bit0= initialize *prev_time */
-int burn_stdio_slowdown(struct burn_drive *d, struct timeval *prev_time,
-			 int amount, int flag)
+/* ts C00824 : API */
+/* Enforces nominal write speed */
+int burn_nominal_slowdown(int kb_per_second, int max_corr,
+			  struct timeval *prev_time,
+			  int *us_corr, off_t b_since_prev, int flag)
 {
 	struct timeval tnow;
-	double to_wait;
+	double to_wait, goal, corr;
+	int abs_max_corr;
 
 	if (flag & 1) {
 		gettimeofday(prev_time, NULL);
+		*us_corr = 0;
 		return 1;
 	}
-	if(d->nominal_write_speed <= 0)
+	if (kb_per_second <= 0)
 		return 2;
+
+	if (max_corr < -1.0e9 || max_corr > 1.0e9)
+		abs_max_corr = 1000000000;
+	else
+		abs_max_corr = abs(max_corr);
 	gettimeofday(&tnow, NULL);
-	to_wait = ( ((double) amount) / (double) d->nominal_write_speed ) - 
-		(double) ( tnow.tv_sec - prev_time->tv_sec ) -
-		(double) ( tnow.tv_usec - prev_time->tv_usec ) / 1.0e6
-		- 0.001; /* best would be 1 / kernel granularity HZ */
-	if (to_wait >= 0.0001) {
-		usleep((int) (to_wait * 1000000.0));
+	goal = ((double) b_since_prev) / 1000.0 / ((double) kb_per_second) +
+		((double) prev_time->tv_sec) +
+		((double) prev_time->tv_usec) / 1.0e6 +
+		((double) *us_corr) / 1.0e6 ;
+	to_wait = goal - ((double) tnow.tv_sec) -
+		  ((double) tnow.tv_usec) / 1.0e6;
+
+	/* usleep might be restricted to 999999 microseconds */
+	while (to_wait > 0.0) {
+		if (to_wait >= 0.5) {
+			usleep(500000);
+			to_wait -= 0.5;
+		} else if (to_wait >= 0.00001) {
+			usleep((int) (to_wait * 1000000.0));
+			to_wait = 0.0;
+		} else {
+			to_wait = 0.0;
+		}	
 	}
 	gettimeofday(prev_time, NULL);
+	corr = (goal - ((double) prev_time->tv_sec) -
+		((double) prev_time->tv_usec) / 1.0e6) * 1.0e6;
+	if (corr > abs_max_corr)
+		*us_corr = abs_max_corr;
+	else if (corr < -abs_max_corr)
+		*us_corr = -abs_max_corr;
+	else
+		*us_corr = corr;
 	return 1;
 }
 
@@ -2801,7 +2828,7 @@ int burn_stdio_write_track(struct burn_write_opts *o, struct burn_session *s,
 	struct burn_track *t = s->track[tnum];
 	struct burn_drive *d = o->drive;
 	char *buf = NULL;
-	int i, prev_sync_sector = 0;
+	int i, prev_sync_sector = 0, us_corr = 0, max_corr = 250000;
 	struct buffer *out = d->buffer;
 	struct timeval prev_time;
 
@@ -2821,7 +2848,10 @@ int burn_stdio_write_track(struct burn_write_opts *o, struct burn_session *s,
 	d->do_simulate = o->simulate;
 	d->sync_cache = burn_stdio_mmc_sync_cache;
 
-	burn_stdio_slowdown(d, &prev_time, 0, 1); /* initialize */
+	/* initialize */
+	burn_nominal_slowdown(d->nominal_write_speed, max_corr,
+				&prev_time, &us_corr, (off_t) 0, 1);
+
 	for (i = 0; open_ended || i < sectors; i++) {
 		/* transact a (CD sized) sector */
 		if (!sector_data(o, t, 0))
@@ -2834,14 +2864,25 @@ int burn_stdio_write_track(struct burn_write_opts *o, struct burn_session *s,
 		}
 		d->progress.sector++;
 		/* Flush to disk from time to time */
-		if (d->progress.sector - prev_sync_sector >=
-		    o->stdio_fsync_size && o->stdio_fsync_size > 0) {
-			prev_sync_sector = d->progress.sector;
-			if (!o->simulate)
-				burn_stdio_sync_cache(d->stdio_fd, d, 1);
+		if (o->stdio_fsync_size > 0) {
+			if (d->progress.sector - prev_sync_sector >=
+			    o->stdio_fsync_size) {
+				if (!o->simulate)
+					burn_stdio_sync_cache(d->stdio_fd, d,
+									 1);
+				burn_nominal_slowdown(
+					d->nominal_write_speed, max_corr,
+					&prev_time, &us_corr,
+					(off_t) (d->progress.sector -
+						 prev_sync_sector) *
+						 (off_t) 2048,
+					0);
+				prev_sync_sector = d->progress.sector;
+			}
+		} else if ((d->progress.sector % 512) == 0) {
+			burn_nominal_slowdown(d->nominal_write_speed, max_corr,
+				&prev_time, &us_corr, (off_t) (512 * 2048), 0);
 		}
-		if ((d->progress.sector % 512) == 0) 
-			burn_stdio_slowdown(d, &prev_time, 512 * 2, 0);
 	}
 
 	/* Pad up buffer to next full o->obs (usually 32 kB) */
