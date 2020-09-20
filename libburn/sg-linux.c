@@ -826,14 +826,14 @@ static int sg_release_siblings(int sibling_fds[],
 static int sg_os_revalidate_disc(struct burn_drive *d)
 {
 
-/* <<< only for compiler tests */
-/* # def ine BURN_CDROM_SIMUL_CHANGE 0x5332 */
+#ifdef Libburn_use_linux_ioctl_simul_changE
 
-#ifdef CDROM_SIMUL_CHANGE
-#define BURN_CDROM_SIMUL_CHANGE CDROM_SIMUL_CHANGE
+/* <<< only for compiler tests */
+#ifndef CDROM_SIMUL_CHANGE
+/* # def ine CDROM_SIMUL_CHANGE 0x5332 */
 #endif
 
-#ifdef BURN_CDROM_SIMUL_CHANGE
+#ifdef CDROM_SIMUL_CHANGE
 
 	int fd, ret;
 	long old_blocks, new_blocks;
@@ -845,18 +845,26 @@ static int sg_os_revalidate_disc(struct burn_drive *d)
 	if (ret == -1)
 		old_blocks = -1;
 
-	/* Schedule a simulated medium change event */
-	ioctl(d->fd, BURN_CDROM_SIMUL_CHANGE, 0);
+	/* Schedule a simulated medium change event.
+	   Although the implemented ioctl cannot fail, the kernel might be too
+	   old to know it and then throw errors like ENOTTY.
+	 */
+	ret = ioctl(d->fd, CDROM_SIMUL_CHANGE, 0);
+	if (ret == -1) {
+		libdax_msgs_submit(libdax_messenger, d->global_index,
+			0x02, LIBDAX_MSGS_SEV_DEBUG, LIBDAX_MSGS_PRIO_HIGH,
+			"ioctl(CDROM_SIMUL_CHANGE) failed", errno, 0);
+		ret = 0; goto ex;
+	}
 	libdax_msgs_submit(libdax_messenger, d->global_index,
-		0x00000002, LIBDAX_MSGS_SEV_DEBUG, LIBDAX_MSGS_PRIO_HIGH,
-		"Emitted ioctl(CDROM_SIMUL_CHANGE)", 0, 0);
+		0x02, LIBDAX_MSGS_SEV_DEBUG, LIBDAX_MSGS_PRIO_HIGH,
+		"ioctl(CDROM_SIMUL_CHANGE) was performed", 0, 0);
 	/* Try to trigger actual device assessment by a open(2) call */
 	fd = open(d->devname, O_RDONLY | O_NDELAY);
 	if (fd == -1) {
 		libdax_msgs_submit(libdax_messenger, d->global_index,
-			0x00000002, LIBDAX_MSGS_SEV_DEBUG,
-			LIBDAX_MSGS_PRIO_HIGH,
-		"Failed to open device file after ioctl(CDROM_SIMUL_CHANGE)",
+			0x02, LIBDAX_MSGS_SEV_DEBUG, LIBDAX_MSGS_PRIO_HIGH,
+		  "Failed to open device file after ioctl(CDROM_SIMUL_CHANGE)",
 			errno, 0);
 		ret = 0; goto ex;
 	}
@@ -864,8 +872,7 @@ static int sg_os_revalidate_disc(struct burn_drive *d)
 	ret = ioctl(d->fd, BLKGETSIZE, &new_blocks);
 	if (ret == -1) {
 		libdax_msgs_submit(libdax_messenger, d->global_index,
-			0x00000002, LIBDAX_MSGS_SEV_DEBUG,
-			LIBDAX_MSGS_PRIO_HIGH,
+			0x02, LIBDAX_MSGS_SEV_DEBUG, LIBDAX_MSGS_PRIO_HIGH,
 			"BLKGETSIZE failed after ioctl(CDROM_SIMUL_CHANGE)",
 			errno, 0);
 	} else if (old_blocks != new_blocks) {
@@ -873,18 +880,24 @@ static int sg_os_revalidate_disc(struct burn_drive *d)
 		    "BLKGETSIZE indicates size change from %ld to %ld blocks",
 			old_blocks , new_blocks);
 		libdax_msgs_submit(libdax_messenger, d->global_index,
-			0x00000002, LIBDAX_MSGS_SEV_DEBUG,
-			LIBDAX_MSGS_PRIO_HIGH, msg, 0, 0);
+			0x02, LIBDAX_MSGS_SEV_DEBUG, LIBDAX_MSGS_PRIO_HIGH,
+			msg, 0, 0);
 	}
 ex:
 	BURN_FREE_MEM(msg);
-	return 1;
+	return ret;
 
-#else
+#else /* CDROM_SIMUL_CHANGE */
 
 	return 0;
 
-#endif /* BURN_CDROM_SIMUL_CHANGE */
+#endif /* ! CDROM_SIMUL_CHANGE */
+
+#else /* Libburn_use_linux_ioctl_simul_changE */
+
+	return 0;
+
+#endif /* ! Libburn_use_linux_ioctl_simul_changE */
 
 }
 
