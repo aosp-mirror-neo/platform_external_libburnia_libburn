@@ -195,8 +195,8 @@ int spc_wait_unit_attention(struct burn_drive *d, int max_sec, char *cmd_text,
 */
 	break;
 			}
-			if (key == 0x6 && asc == 0x28 && ascq == 0x00)
-				/* media change notice = try again */
+			if (key == 0x6 && asc == 0x28)
+				/* medium change notice or alike = try again */
 				goto slumber;
 
 handle_error:;
@@ -1446,8 +1446,15 @@ enum response scsi_error_msg(struct burn_drive *d, unsigned char *sense,
 	case 0x28:
 		if (*ascq == 0)
 			sprintf(msg, "Medium may have changed");
+		else if (*ascq == 1)
+			sprintf(msg, "Import or export element accessed");
 		else if (*ascq == 2)
 			sprintf(msg, "Format layer may have changed");
+		else if (*ascq == 3)
+			sprintf(msg,
+			     "Import/export element accessed, medium changed");
+		else if (*key == 6)
+			sprintf(msg, "Unknown ASCQ with drive event ASC 28");
 		else
 			break;
 		goto return_retry;
