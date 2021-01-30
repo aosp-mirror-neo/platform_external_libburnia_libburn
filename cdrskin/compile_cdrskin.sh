@@ -1,14 +1,14 @@
 #!/bin/sh
 
 # compile_cdrskin.sh  
-# Copyright 2005 - 2019 Thomas Schmitt, scdbackup@gmx.net, GPL v2 or later
+# Copyright 2005 - 2021 Thomas Schmitt, scdbackup@gmx.net, GPL v2 or later
 # to be executed within  ./libburn-*  or./cdrskin-*
 
 debug_opts="-O2"
 def_opts=
 largefile_opts="-D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE=1"
 fifo_opts=""
-libvers="-DCdrskin_libburn_1_5_2"
+libvers="-DCdrskin_libburn_1_5_4"
 
 # To be used if Makefile.am uses libburn_libburn_la_CFLAGS
 # burn="libburn/libburn_libburn_la-"
@@ -41,15 +41,15 @@ do
   elif test "$i" = "-compile_dewav"
   then
     compile_dewav=1
-  elif test "$i" = "-libburn_1_5_2"
+  elif test "$i" = "-libburn_1_5_4"
   then
-    libvers="-DCdrskin_libburn_1_5_2"
+    libvers="-DCdrskin_libburn_1_5_4"
     libdax_audioxtr_o="$burn"libdax_audioxtr.o
     libdax_msgs_o="$burn"libdax_msgs.o
     cleanup_src_or_obj="$burn"cleanup.o
   elif test "$i" = "-libburn_svn"
   then
-    libvers="-DCdrskin_libburn_1_5_3"
+    libvers="-DCdrskin_libburn_1_5_5"
     libdax_audioxtr_o="$burn"libdax_audioxtr.o
     libdax_msgs_o="$burn"libdax_msgs.o
     cleanup_src_or_obj="$burn"cleanup.o

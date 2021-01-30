@@ -6,12 +6,12 @@ This all is under GPL.
 ------------------------------------------------------------------------------
 libburnia-project.org
 By Mario Danic <mario.danic@gmail.com> and Thomas Schmitt <scdbackup@gmx.net>
-Copyright (C) 2006-2019 Mario Danic, Thomas Schmitt
+Copyright (C) 2006-2021 Mario Danic, Thomas Schmitt
 Still containing parts of Libburn. By Derek Foreman <derek@signalmarketing.com>
 and Ben Jansens <xor@orodu.net>
 Copyright (C) 2002-2006  Derek Foreman and Ben Jansens
 
-     http://files.libburnia-project.org/releases/libburn-1.5.2.pl01.tar.gz
+     http://files.libburnia-project.org/releases/libburn-1.5.4.tar.gz
 
 ------------------------------------------------------------------------------
 
@@ -19,10 +19,10 @@ Copyright (C) 2002-2006  Derek Foreman and Ben Jansens
 
                                 From tarball
 
-Obtain libburn-1.5.2.pl01.tar.gz, take it to a directory of your choice and do:
+Obtain libburn-1.5.4.tar.gz, take it to a directory of your choice and do:
 
-   tar xzf libburn-1.5.2.pl01.tar.gz
-   cd libburn-1.5.2
+   tar xzf libburn-1.5.4.tar.gz
+   cd libburn-1.5.4
    ./configure --prefix=/usr
    make
 
@@ -794,6 +794,21 @@ Project history as far as known to me:
 - Mon Nov 25 2019 patch release 1.5.2.pl01
   cdrskin did not properly burn multiple tracks. Track 1 was slow and burning
   stalled before track 2. Regression introduced by 1.5.0.
+
+- Sat Jan 30 2021 release 1.5.4
+  libburn offers new opportunities to influence drive speed. libisofs switched
+  to usage of libjte-2.0.0. Further it can now write and read zisofs2 format,
+  which enables compression of files >= 4 GiB. When reading Joliet file trees
+  the names get stripped of their version numbers by default. After loading
+  metadata, libisofs can now tell which directory tree was loaded and whether
+  Rock Ridge is used. libisoburn and xorrso make use of these new features.
+  xorriso can put out the data stream of -check_media to standard output. It
+  can restore files with many zero bytes as sparse files and it is able to
+  extract recognized boot images into data files on hard disk.
+  A new script xorriso-dd-target helps to put an ISO image onto an USB stick
+  without endangering valuable hard disk content.
+  Several rarely triggered bugs were fixed.
+  
 
 ------------------------------------------------------------------------------
 

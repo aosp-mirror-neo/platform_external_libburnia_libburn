@@ -1,6 +1,6 @@
 
 /*
- cdrskin.c , Copyright 2006-2019 Thomas Schmitt <scdbackup@gmx.net>
+ cdrskin.c , Copyright 2006-2021 Thomas Schmitt <scdbackup@gmx.net>
 Provided under GPL version 2 or later.
 
 A cdrecord compatible command line interface for libburn.
@@ -87,7 +87,7 @@ or
 
 /** The official program version */
 #ifndef Cdrskin_prog_versioN
-#define Cdrskin_prog_versioN "1.5.3"
+#define Cdrskin_prog_versioN "1.5.4"
 #endif
 
 /** The official libburn interface revision to use.
@@ -100,7 +100,7 @@ or
 #define Cdrskin_libburn_minoR 5
 #endif
 #ifndef Cdrskin_libburn_micrO
-#define Cdrskin_libburn_micrO 2
+#define Cdrskin_libburn_micrO 4
 #endif
 
 
@@ -120,34 +120,34 @@ or
 #undef Cdrskin_libburn_versioN 
 #endif
 
-#ifdef Cdrskin_libburn_1_5_2
-#define Cdrskin_libburn_versioN "1.5.2"
+#ifdef Cdrskin_libburn_1_5_4
+#define Cdrskin_libburn_versioN "1.5.4"
 #endif
 
-#ifdef Cdrskin_libburn_1_5_3
-#define Cdrskin_libburn_versioN "1.5.3"
+#ifdef Cdrskin_libburn_1_5_5
+#define Cdrskin_libburn_versioN "1.5.5"
 #endif
 
 #ifndef Cdrskin_libburn_versioN
-#define Cdrskin_libburn_1_5_2
-#define Cdrskin_libburn_versioN "1.5.2"
+#define Cdrskin_libburn_1_5_4
+#define Cdrskin_libburn_versioN "1.5.4"
 #endif
 
-#ifdef Cdrskin_libburn_1_5_2
+#ifdef Cdrskin_libburn_1_5_4
 #undef Cdrskin_libburn_majoR
 #undef Cdrskin_libburn_minoR
 #undef Cdrskin_libburn_micrO
 #define Cdrskin_libburn_majoR 1
 #define Cdrskin_libburn_minoR 5
-#define Cdrskin_libburn_micrO 2
+#define Cdrskin_libburn_micrO 4
 #endif
-#ifdef Cdrskin_libburn_1_5_3
+#ifdef Cdrskin_libburn_1_5_5
 #undef Cdrskin_libburn_majoR
 #undef Cdrskin_libburn_minoR
 #undef Cdrskin_libburn_micrO
 #define Cdrskin_libburn_majoR 1
 #define Cdrskin_libburn_minoR 5
-#define Cdrskin_libburn_micrO 3
+#define Cdrskin_libburn_micrO 5
 #endif
 
 
@@ -3173,7 +3173,7 @@ set_severities:;
      int major, minor, micro;
 
      printf(
-"Cdrecord 2.01a27 Emulation. Copyright (C) 2006-2018, see libburnia-project.org\n");
+"Cdrecord 2.01a27 Emulation. Copyright (C) 2006-2021, see libburnia-project.org\n");
      if(o->fallback_program[0]) {
        char *hargv[2];
 
