@@ -13955,12 +13955,185 @@ cdrskin/README
 cdrskin/cdrskin_timestamp.h
 Made number transition to 1.5.3
 
-27 Oct 2019  []
+27 Oct 2019  [95ad059]
 ChangeLog
 cdrskin/changelog.txt
 Updated change log
 
 ------------------------------------ cycle  - cdrskin-1.5.3 - 2019.10.27.142135
+
+
+27 Oct 2019  [1c235e8]
+cdrskin/cdrskin.1
+Corrected alphabetical sort rank of --list_features in man cdrskin
+
+2019.10.28.155736  [ba9b69b]
+libburn/libdax_audioxtr.c
+libburn/async.c
+libburn/libdax_msgs.h
+libburn/file.c
+libburn/options.c
+libburn/spc.c
+libburn/structure.h
+libburn/sector.c
+libburn/libdax_audioxtr.h 
+libburn/transport.h
+libburn/sg-dummy.c
+libburn/sg-linux.c
+libburn/sg-netbsd.c
+libburn/cdtext.c
+libburn/drive.c
+libburn/init.c
+libburn/write.c
+libburn/read.c
+libburn/libburn.h
+libburn/options.h
+libburn/mmc.c
+libburn/ddlpa.c
+libburn/sg-solaris.c
+libburn/ecma130ab.c
+libburn/sg-libcdio.c
+libburn/sg-freebsd-port.c
+libburn/init.h
+Fixed spelling errors found by fossies.org with codespell
+
+2019.11.25.091234  [91f7d4d] [release-1.5.2.pl01 30c9f6d]
+configure.ac
+libburn/sg-linux.c
+cdrskin/cdrfifo.c
+Bug fix: cdrskin multi-track burning was slow and stalled after track 1.
+         Regression introduced in version 1.5.0 by commit 84fad99, 2018.02.05
+
+  []
+ChangeLog
+cdrskin/cdrskin_eng.html
+cdrskin/changelog.txt
+Updated change log
+
+25 Nov 2019  [branch-1.5.2.pl01 4c0ebf1]
+README
+cdrskin/README
+ChangeLog
+cdrskin/changelog.txt
+cdrskin/cdrskin_eng.html
+Mentioned bug fix and pl01
+
+25 Nov 2019  [d4593f4]
+README
+Updated README about 1.5.2.pl01
+
+---------------------- bug fix release - cdrskin-1.5.2.pl01 - 2019.11.25.094931
+------------------------------------ cycle  - cdrskin-1.5.3 - 2019.11.25.194241
+* Bug fix: cdrskin multi-track burning was slow and stalled after track 1.
+           Regression introduced in version 1.5.0 by commit 84fad99, 2018.02.05
+           O_DIRECT is now disabled for track sources.
+
+
+26 Nov 2019  [b57c05c]
+configure.ac
+Incremented .so numbering to libburn.so.4.106.0
+
+2020.04.15.185125  [7991750]
+libburn/sg-linux.c
+Bug fix: Early SCSI commands from sg-linux.c were not logged
+
+11 Jul 2020  [e09acf3]
+cdrskin/cdrskin.1
+Corrected a typo in man cdrskin found by lintian
+
+2020.08.22.132046  [8d934ee]
+libburn/transport.h
+libburn/drive.c
+libburn/write.c
+libburn/sg-linux.c
+Testing use of experimental ioctl CDROM_REVALIDATE after media state changes
+
+2020.08.22.132046  [8d934ee]
+libburn/transport.h
+libburn/drive.c
+libburn/write.c
+libburn/sg-linux.c
+Testing use of experimental ioctl CDROM_REVALIDATE after media state changes
+
+2020.08.24.132739  [0e1f5dc]
+libburn/libburn.h
+libburn/libburn.ver
+libburn/transport.h
+libburn/drive.c
+libburn/mmc.c
+New API call burn_drive_set_speed_exact()
+
+2020.08.26.140343  [8b9a8cf]
+libburn/libburn.h
+libburn/libburn.ver
+libburn/write.c
+New API call burn_nominal_slowdown()
+
+2020.09.20.084444  [ab6b103]
+libburn/sg-linux.c
+Changed experimental ioctl from CDROM_REVALIDATE to CDROM_SIMUL_CHANGE
+
+2020.09.20.204320  [9bc9900]
+libburn/sg-linux.c
+For now using CDROM_SIMUL_CHANGE only if -DLibburn_use_linux_ioctl_simul_changE
+
+2020.09.30.185335  [3468a2a]
+libburn/spc.c
+Tolerating all sense replies of form 6,28,*
+
+2021.01.30.103001  [2a58d5a]
+Makefile.am
+configure.ac
+README
+libburn/libburn.h
+cdrskin/cdrskin.c
+cdrskin/cdrskin.1
+cdrskin/README
+cdrskin/compile_cdrskin.sh
+cdrskin/cdrskin_timestamp.h
+cdrskin/cdrskin_eng.html
+Made number transition to 1.5.4
+
+30 Jan 2021  [d95d5a2]
+- cdrskin/add_ts_changes_to_libburn_1_5_2
+- cdrskin/add_ts_changes_to_libburn_1_5_3
++ cdrskin/add_ts_changes_to_libburn_1_5_4
++ cdrskin/add_ts_changes_to_libburn_1_5_5
+Updated cdrskin tarball generator
+
+30 Jan 2021  [d146886]
+configure.ac
+Corrected SONAME parameters to produce libburn.so.4.107.0
+
+  []
+ChangeLog
+cdrskin/changelog.txt
+Updated change log
+
+----------------------------------- release - cdrskin-1.5.4 - 2021.01.30.103001
+* Bug fix: Early SCSI commands from sg-linux.c were not logged
+* New API call burn_drive_set_speed_exact()
+* New API call burn_nominal_slowdown()
+
+  []
+Makefile.am
+configure.ac
+libburn/libburn.h
+cdrskin/cdrskin.c
+cdrskin/cdrskin.1
+cdrskin/README
+cdrskin/cdrskin_timestamp.h
+Made number transition to 1.5.5
+
+  []
+ChangeLog
+cdrskin/changelog.txt
+Updated change log
+
+  []
+libburn/cleanup.c
+>>> SIGCONT in non_signal_list : local but not in git
+
 
   []
 ChangeLog

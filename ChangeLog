@@ -1,7 +1,14 @@
-git clone git@dev.lovelyhq.com:libburnia/libburn.git
-(to become libburn-1.5.4 or higher)
+libburn-1.5.4.tar.gz Sat Jan 30 2021
 ===============================================================================
-- no novelties yet -
+* Bug fix: Early SCSI commands from sg-linux.c were not logged
+* New API call burn_drive_set_speed_exact()
+* New API call burn_nominal_slowdown()
+
+libburn-1.5.2.pl01.tar.gz Mon Nov 25 2019
+===============================================================================
+* Bug fix: cdrskin multi-track burning was slow and stalled after track 1.
+           Regression introduced in version 1.5.0 by commit 84fad99, 2018.02.05
+           O_DIRECT is now disabled for track sources.
 
 libburn-1.5.2.tar.gz Sat Oct 26 2019
 ===============================================================================
