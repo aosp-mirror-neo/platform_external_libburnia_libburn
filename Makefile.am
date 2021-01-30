@@ -116,7 +116,7 @@ test_poll_SOURCES = test/poll.c
 
 ##  cdrskin construction site - ts A60816 - C10130
 cdrskin_cdrskin_CPPFLAGS = -Ilibburn
-cdrskin_cdrskin_CFLAGS = -DCdrskin_libburn_1_5_4
+cdrskin_cdrskin_CFLAGS = -DCdrskin_libburn_1_5_5
 
 # cdrskin_cdrskin_LDADD = $(libburn_libburn_la_OBJECTS) $(LIBBURN_EXTRALIBS)
 # ts A80123, change proposed by Simon Huggins to cause dynamic libburn linking
