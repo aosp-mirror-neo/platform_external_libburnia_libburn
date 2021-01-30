@@ -14105,8 +14105,9 @@ Updated cdrskin tarball generator
 configure.ac
 Corrected SONAME parameters to produce libburn.so.4.107.0
 
-  []
+30 Jan 2021  [d3bd97c]
 ChangeLog
+cdrskin/cdrskin_eng.html
 cdrskin/changelog.txt
 Updated change log
 
@@ -14115,7 +14116,7 @@ Updated change log
 * New API call burn_drive_set_speed_exact()
 * New API call burn_nominal_slowdown()
 
-  []
+2021.01.30.153517  [f1d5c67]
 Makefile.am
 configure.ac
 libburn/libburn.h
