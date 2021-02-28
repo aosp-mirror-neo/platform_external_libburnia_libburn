@@ -1,7 +1,7 @@
 /* -*- indent-tabs-mode: t; tab-width: 8; c-basic-offset: 8; -*- */
 
 /* Copyright (c) 2004 - 2006 Derek Foreman, Ben Jansens
-   Copyright (c) 2006 - 2017 Thomas Schmitt <scdbackup@gmx.net>
+   Copyright (c) 2006 - 2021 Thomas Schmitt <scdbackup@gmx.net>
    Provided under GPL version 2 or later.
 */
 
@@ -630,6 +630,8 @@ struct cue_sheet *burn_create_toc_entries(struct burn_write_opts *o,
 		   track length.
 		*/ 
 		track_length = burn_track_get_sectors_2(tar[i], 1);
+		if (track_length < 0)
+			goto failed;
 		if (track_length < 300 && !burn_track_is_open_ended(tar[i])) {
 			track_length = 300;
 			if (!tar[i]->pad)
@@ -1203,6 +1205,8 @@ int burn_write_track(struct burn_write_opts *o, struct burn_session *s,
 /* user data */
 
 	sectors = burn_track_get_sectors_2(t, 1);
+	if (sectors < 0)
+		{ ret = 0; goto ex; }
 	open_ended = burn_track_is_open_ended(t);
 
 	burn_disc_init_track_status(o, s, t, tnum, sectors);
@@ -1591,6 +1595,8 @@ int burn_disc_open_track_dvd_minus_r(struct burn_write_opts *o,
 	if (o->write_type == BURN_WRITE_SAO) { /* DAO */
 		size = ((off_t) burn_track_get_sectors_2(s->track[tnum], 1))
 			* (off_t) 2048;
+		if (size < 0)
+			{ret = 0; goto ex;}
 
  		/* Eventually round track size up to write chunk */
 		if (o->obs_pad && (size % o->obs))
@@ -1640,6 +1646,8 @@ int burn_disc_open_track_dvd_plus_r(struct burn_write_opts *o,
  		/* Reserve track */
 		size = ((off_t) burn_track_get_sectors_2(s->track[tnum], 1))
 			* (off_t) 2048;
+		if (size < 0)
+			{ret = 0; goto ex;}
 		if (o->obs_pad) {
 	 		/* Round track size up to write chunk size */
 			/* o->obs should be 32k or 64k already. But 32k
@@ -1932,6 +1940,8 @@ int burn_dvd_write_track(struct burn_write_opts *o,
 	track_open = 1;
 
 	sectors = burn_track_get_sectors_2(t, 1);
+	if (sectors < 0)
+		{ret = 0; goto ex;}
 	open_ended = burn_track_is_open_ended(t);
 
 	/* (offset padding is done within sector_data()) */
@@ -2835,6 +2845,8 @@ int burn_stdio_write_track(struct burn_write_opts *o, struct burn_session *s,
 	BURN_ALLOC_MEM(buf, char, bufsize);
 
 	sectors = burn_track_get_sectors_2(t, 1);
+	if (sectors < 0)
+		{ret = 0; goto ex;}
 	burn_disc_init_track_status(o, s, t, tnum, sectors);
 	open_ended = burn_track_is_open_ended(t);
 

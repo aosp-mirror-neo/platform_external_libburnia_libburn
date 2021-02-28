@@ -1,6 +1,6 @@
 
 /* Copyright (c) 2004 - 2006 Derek Foreman, Ben Jansens
-   Copyright (c) 2006 - 2014 Thomas Schmitt <scdbackup@gmx.net>
+   Copyright (c) 2006 - 2021 Thomas Schmitt <scdbackup@gmx.net>
    Provided under GPL version 2 or later.
 */
 
@@ -533,6 +533,12 @@ int burn_track_get_sectors_2(struct burn_track *t, int flag)
 		if (t->entry->extensions_valid & 1)
 			size = ((off_t) t->entry->track_blocks) * (off_t) 2048;
 	}
+	if (size > ((off_t) 0x7ffffff0) * (off_t) 2048) {
+		libdax_msgs_submit(libdax_messenger, -1, 0x000201ae,
+				LIBDAX_MSGS_SEV_FAILURE, LIBDAX_MSGS_PRIO_HIGH,
+				"Track size exceeds 4 TiB - 32 KiB", 0, 0);
+		return -1;
+	}
 	sectors = size / seclen;
 	if (size % seclen)
 		sectors++;
@@ -589,13 +595,22 @@ int burn_track_set_fillup(struct burn_track *t, int fill_up_media)
 */
 int burn_track_apply_fillup(struct burn_track *t, off_t max_size, int flag)
 {
-	int max_sectors, ret = 2;
+	int max_sectors, ret = 2, track_sectors;
 	char msg[80];
 
 	if (t->fill_up_media <= 0)
 		return 2;
+	if (max_size > (off_t) 0x7ffffff0 * (off_t) 2048) {
+		libdax_msgs_submit(libdax_messenger, -1, 0x000201ae,
+			LIBDAX_MSGS_SEV_FAILURE, LIBDAX_MSGS_PRIO_HIGH,
+			"Track size exceeds 4 TiB - 32 KiB", 0, 0);
+		return 0;
+	}
 	max_sectors = max_size / 2048;
-	if (burn_track_get_sectors(t) < max_sectors || (flag & 1)) {
+	track_sectors = burn_track_get_sectors(t);
+	if (track_sectors < 0)
+		return 0;
+	if (track_sectors < max_sectors || (flag & 1)) {
 		sprintf(msg, "Setting total track size to %ds (payload %ds)\n",
 			max_sectors & 0x7fffffff,
 			(int) ((t->source->get_size(t->source) / 2048)
@@ -665,10 +680,14 @@ int burn_track_get_shortage(struct burn_track *t)
 
 int burn_session_get_sectors(struct burn_session *s)
 {
-	int sectors = 0, i;
+	int sectors = 0, i, track_sectors;
 
-	for (i = 0; i < s->tracks; i++)
-		sectors += burn_track_get_sectors(s->track[i]);
+	for (i = 0; i < s->tracks; i++) {
+		track_sectors = burn_track_get_sectors(s->track[i]);
+		if (track_sectors < 0)
+			track_sectors = 0;
+		sectors += track_sectors;
+	}
 	return sectors;
 }
 

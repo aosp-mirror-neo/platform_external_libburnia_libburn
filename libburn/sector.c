@@ -1,7 +1,7 @@
 /* -*- indent-tabs-mode: t; tab-width: 8; c-basic-offset: 8; -*- */
 
 /* Copyright (c) 2004 - 2006 Derek Foreman, Ben Jansens
-   Copyright (c) 2006 - 2016 Thomas Schmitt <scdbackup@gmx.net>
+   Copyright (c) 2006 - 2021 Thomas Schmitt <scdbackup@gmx.net>
    Provided under GPL version 2 or later.
 */
 
@@ -194,6 +194,8 @@ static void get_bytes(struct burn_track *track, int count, unsigned char *data)
 
 		inp_block_size = burn_sector_length(track->mode);
 		track_blocks = burn_track_get_sectors_2(track, 1);
+		if (track_blocks < 0)
+			track_blocks = 0;
 		missing = track_blocks * inp_block_size - track->sourcecount;
 		sprintf(msg,
 		      "Premature end of input encountered. Missing: %.f bytes",

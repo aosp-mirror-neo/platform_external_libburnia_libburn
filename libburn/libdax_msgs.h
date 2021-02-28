@@ -1,7 +1,7 @@
 
 /* libdax_msgs
    Message handling facility of libburn and libisofs.
-   Copyright (C) 2006-2016 Thomas Schmitt <scdbackup@gmx.net>,
+   Copyright (C) 2006-2021 Thomas Schmitt <scdbackup@gmx.net>,
    provided under GPL version 2 or later.
 */
 
@@ -616,6 +616,7 @@ Range "scdbackup"          :  0x00020000 to 0x0002ffff
  0x000201ab (WARN,HIGH)    = Leaving burn_source_fifo object undisposed
  0x000201ac (NOTE,HIGH)    = Drive currently does not offer Stream Recording
  0x000201ad (NOTE,HIGH)    = WRITE commands have been repeated
+ 0x000201ae (FAILURE,HIGH) = Track size exceeds 4 TiB - 32 KiB
 
 
  libdax_audioxtr:
