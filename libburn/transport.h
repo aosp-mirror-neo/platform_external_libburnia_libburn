@@ -373,7 +373,9 @@ struct burn_drive
 
 	/* ts A81210 : Upper limit of readable data size,
 	               0x7fffffff = unknown
-	               0x7ffffff0 = 32 bit overflow, or unknown stdio size
+	               0x7ffffff0 = BURN_DRIVE_MAX_BYTES / 2048
+	                            possibly truncated to prevent 32 bit
+	                            overflow, or unknown stdio size
 	 */
 	int media_read_capacity;
 	/* ts B60305 : Whether READ CAPACITY of CD is credible:

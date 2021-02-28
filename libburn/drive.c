@@ -1,7 +1,7 @@
 /* -*- indent-tabs-mode: t; tab-width: 8; c-basic-offset: 8; -*- */
 
 /* Copyright (c) 2004 - 2006 Derek Foreman, Ben Jansens
-   Copyright (c) 2006 - 2020 Thomas Schmitt <scdbackup@gmx.net>
+   Copyright (c) 2006 - 2021 Thomas Schmitt <scdbackup@gmx.net>
    Provided under GPL version 2 or later.
 */
 
@@ -375,8 +375,8 @@ static int burn_drive__is_rdwr(char *fname, int *stat_ret,
 		else if (is_rdwr)
 			ret = burn_os_stdio_capacity(fname, 0, &read_size);
 		if (ret <= 0 ||
-		    read_size / (off_t) 2048 >= (off_t) 0x7ffffff0) 
-			read_size = (off_t) 0x7ffffff0 * (off_t) 2048;  
+		    read_size >= BURN_DRIVE_MAX_BYTES) 
+			read_size = BURN_DRIVE_MAX_BYTES;  
 	}
 
 	if (is_rdwr && fd >= 0) {
@@ -451,10 +451,10 @@ int burn_drive_grab_stdio(struct burn_drive *d, int flag)
 		if (stat_ret != -1 && S_ISREG(stbuf.st_mode) &&
 		    stbuf.st_size > 0) {
 			d->status = BURN_DISC_APPENDABLE;
-			if (stbuf.st_size / (off_t) 2048
-			    >= 0x7ffffff0) {
+			if (stbuf.st_size >= BURN_DRIVE_MAX_BYTES) {
 				d->status = BURN_DISC_FULL;
-				d->role_5_nwa = 0x7ffffff0;
+				d->role_5_nwa = (off_t) BURN_DRIVE_MAX_BYTES /
+						(off_t) 2048;
 			} else 
 				d->role_5_nwa = stbuf.st_size / 2048 +
 				              !!(stbuf.st_size % 2048);
@@ -1782,8 +1782,7 @@ int burn_drive_grab_dummy(struct burn_drive_info *drive_infos[], char *fname)
 {
 	int ret = -1, role = 0, fd;
 	int is_rdwr = 0, stat_ret = -1;
-	/* divided by 512 it needs to fit into a signed long integer */
-	off_t size = ((off_t) (512 * 1024 * 1024 - 1) * (off_t) 2048);
+	off_t size = BURN_DRIVE_MAX_BYTES;
 	off_t read_size = -1;
 	struct burn_drive *d= NULL, *regd_d;
 	struct stat stbuf;
@@ -1859,10 +1858,11 @@ int burn_drive_grab_dummy(struct burn_drive_info *drive_infos[], char *fname)
 			    (burn_drive_role_4_allowed & 8)) {
 				d->status = BURN_DISC_APPENDABLE;
 				d->block_types[BURN_WRITE_SAO] = 0;
-				if (stbuf.st_size / (off_t) 2048
-				    >= 0x7ffffff0) {
+				if (stbuf.st_size > BURN_DRIVE_MAX_BYTES) {
 					d->status = BURN_DISC_FULL;
-					d->role_5_nwa = 0x7ffffff0;
+					d->role_5_nwa =
+						(off_t) BURN_DRIVE_MAX_BYTES /
+						(off_t) 2048; ;
 				} else 
 					d->role_5_nwa = stbuf.st_size / 2048 +
 					              !!(stbuf.st_size % 2048);
@@ -2727,7 +2727,7 @@ off_t burn_disc_available_space(struct burn_drive *d,
 		if (ret != 1)
 			bytes = d->media_capacity_remaining;
 		if (bytes <= 0)
-			bytes = (off_t) (512 * 1024 * 1024 - 1) * (off_t) 2048;
+			bytes = BURN_DRIVE_MAX_BYTES;
 		if (bytes != d->media_capacity_remaining)
 			burn_drive_set_media_capacity_remaining(d, bytes);
 	} else {
@@ -3410,8 +3410,8 @@ int burn_drive_find_by_thread_pid(struct burn_drive **d, pid_t pid,
 */
 int burn_drive_set_media_capacity_remaining(struct burn_drive *d, off_t value)
 {
-	if (value / (off_t) 2048 > (off_t) 0x7ffffff0)
-		value = ((off_t) 0x7ffffff0) * (off_t) 2048;
+	if (value > BURN_DRIVE_MAX_BYTES)
+		value = BURN_DRIVE_MAX_BYTES;
 	d->media_capacity_remaining = value;
 	return 1;
 }

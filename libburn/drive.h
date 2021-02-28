@@ -1,7 +1,7 @@
 /* -*- indent-tabs-mode: t; tab-width: 8; c-basic-offset: 8; -*- */
 
 /* Copyright (c) 2004 - 2006 Derek Foreman, Ben Jansens
-   Copyright (c) 2006 - 2014 Thomas Schmitt <scdbackup@gmx.net>
+   Copyright (c) 2006 - 2021 Thomas Schmitt <scdbackup@gmx.net>
    Provided under GPL version 2 or later.
 */
 
@@ -169,5 +169,12 @@ int burn_drive_has_feature(struct burn_drive *d, int feature_code,
                            struct burn_feature_descr **descr, int flag);
 
 int burn_drive_grab_stdio(struct burn_drive *d, int flag);
+
+/* ts C10213 */
+/* The size of limitless or oversized devices as pseudo drives */
+/* Do not change this value because of its meaning to
+   burn_drive.media_read_capacity in libburn/transport.h
+*/
+#define BURN_DRIVE_MAX_BYTES ((off_t) (0x7ffffff0) * (off_t) 2048)
 
 #endif /* __DRIVE */
