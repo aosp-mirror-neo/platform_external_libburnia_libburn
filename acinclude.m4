@@ -16,6 +16,7 @@ AC_DEFUN([TARGET_SHIZZLE],
 
   AC_MSG_CHECKING([target operating system])
 
+  libburn_check_libcam=
   LIBBURNIA_LDCONFIG_CMD="echo 'No ldconfig run performed. If needed, configure manually for:'"
   
   case $target in
@@ -32,6 +33,7 @@ AC_DEFUN([TARGET_SHIZZLE],
     *-kfreebsd*-gnu*)
       ARCH=freebsd
       LIBBURN_ARCH_LIBS=-lcam
+      libburn_check_libcam=yes
       ;;
     *-solaris*)
       ARCH=solaris
@@ -43,8 +45,12 @@ AC_DEFUN([TARGET_SHIZZLE],
 #      AC_ERROR([You are attempting to compile for an unsupported platform])
       ;;
   esac
-
   AC_MSG_RESULT([$ARCH])
+
+  if test x"$libburn_check_libcam" = xyes
+  then
+    LIBBURNIA_CHECK_LIBCAM
+  fi
 ])
 
 
@@ -120,6 +126,7 @@ dnl It tests whether the OS dependent libraries are available.
 dnl With libisoburn they are needed only for the case that indirect linking
 dnl does not work. So it is worth a try to omit them.
 dnl $1 = "mandatory" or "optional" define the action if test linking fails.
+dnl      "silent" is like "optional" but without message.
 AC_DEFUN([LIBBURNIA_CHECK_ARCH_LIBS],
 [
     libburnia_save_LIBS="$LIBS"
@@ -140,11 +147,19 @@ AC_DEFUN([LIBBURNIA_CHECK_ARCH_LIBS],
           echo >&2
           (exit 1); exit 1;
         else
-          echo "disabled linking with $LIBBURN_ARCH_LIBS (because not found)"
+          if test x"$1" = xoptional
+          then
+            echo "disabled linking with $LIBBURN_ARCH_LIBS (because not found)"
+          fi
           LIBBURN_ARCH_LIBS=""
         fi
       else
-        echo "enabled  linking with $LIBBURN_ARCH_LIBS"
+        if test x"$1" = xsilent
+        then
+          dummy=dummy
+        else
+          echo "enabled  linking with $LIBBURN_ARCH_LIBS"
+        fi
       fi
     fi
 ])
@@ -155,18 +170,72 @@ dnl
 AC_DEFUN([LIBBURNIA_CHECK_LINUX_SCSI],
 [
   dnl Check whether it is a Linux without scsi/scsi.h
-  AH_TEMPLATE([Libburn_use_sg_dummY],
-              [Define to compile without OS specific SCSI features])
-  AC_MSG_CHECKING([for missing scsi/scsi.h on Linux])
-  AC_TRY_COMPILE([
+  libburn_scsi_disabled=
+  if test x"$ARCH" = xlinux
+  then
+    AH_TEMPLATE([Libburn_use_sg_dummY],
+                [Define to compile without OS specific SCSI features])
+    AC_MSG_CHECKING([for missing scsi/scsi.h on Linux])
+    AC_TRY_COMPILE([
 #ifdef __linux
 #include <scsi/scsi.h>
 #endif
-     ],
-     [;],
-     [AC_MSG_RESULT([no])],
-     [AC_DEFINE([Libburn_use_sg_dummY], [yes])
-      AC_MSG_RESULT([yes])]
-  )
+       ],
+       [;],
+       [AC_MSG_RESULT([no])],
+       [AC_DEFINE([Libburn_use_sg_dummY], [yes])
+        libburn_scsi_disabled=yes
+        AC_MSG_RESULT([yes])]
+    )
+  fi
+  if test x"$libburn_scsi_disabled" = xyes
+  then
+    echo "disabled operation of optical drives via SCSI"
+  fi
+])
+
+
+dnl LIBBURNIA_CHECK_LIBCAM is by Thomas Schmitt, libburnia project
+dnl
+AC_DEFUN([LIBBURNIA_CHECK_LIBCAM],
+[
+  dnl Check whether libcam is requested for FreeBSD kernel but missing
+  libburn_scsi_disabled=
+  if test x"$LIBBURN_ARCH_LIBS" = x"-lcam"
+  then
+    AH_TEMPLATE([Libburn_use_sg_dummY],
+                [Define to compile without OS specific SCSI features])
+    AC_MSG_CHECKING([for missing libcam for SCSI on FreeBSD kernel])
+    dnl If libcam is not available, LIBBURN_ARCH_LIBS will be made empty
+    LIBBURNIA_CHECK_ARCH_LIBS(silent)
+    if test x"$LIBBURN_ARCH_LIBS" = x
+    then
+      AC_DEFINE([Libburn_use_sg_dummY], [yes])
+      libburn_scsi_disabled=yes
+      AC_MSG_RESULT([yes])
+    else
+      AC_MSG_RESULT([no])
+    fi
+  fi
+  if test x"$LIBBURN_ARCH_LIBS" = x"-lcam"
+  then
+    AC_MSG_CHECKING([for missing libcam headers])
+    AC_TRY_COMPILE([
+#include <stdio.h>
+#include <camlib.h>
+#include <cam/scsi/scsi_message.h>
+#include <cam/scsi/scsi_pass.h>
+         ],
+         [;],
+         [AC_MSG_RESULT([no])],
+         [AC_DEFINE([Libburn_use_sg_dummY], [yes])
+         libburn_scsi_disabled=yes
+         AC_MSG_RESULT([yes])]
+    )
+  fi
+  if test x"$libburn_scsi_disabled" = xyes
+  then
+    echo "disabled operation of optical drives via SCSI"
+  fi
 ])
 
