@@ -2635,7 +2635,7 @@ int mmc_read_cd(struct burn_drive *d, int start, int len,
                 int sec_type, int main_ch,
 		const struct burn_read_opts *o, struct buffer *buf, int flag)
 {
-	int temp, req, ret, dap_bit;
+	int temp, req, ret, dap_bit, len_shift;
 	int subcodes_audio = 0, subcodes_data = 0;
 	struct command *c;
 
@@ -2674,6 +2674,9 @@ int mmc_read_cd(struct burn_drive *d, int start, int len,
 	}
 
 	scsi_init_command(c, MMC_READ_CD, sizeof(MMC_READ_CD));
+	/* (this was never tested with anything but sec_type = 1 = CD-DA) */
+	if(sec_type == 1 && main_ch == 0x10)
+		c->dxfer_len = len * 2352;
 	c->retry = 1;
 	c->opcode[1] = ((sec_type & 7) << 2) | ((!!dap_bit) << 1);
 	temp = start;
@@ -2684,11 +2687,12 @@ int mmc_read_cd(struct burn_drive *d, int start, int len,
 	c->opcode[3] = temp & 0xFF;
 	temp >>= 8;
 	c->opcode[2] = temp & 0xFF;
-	c->opcode[8] = len & 0xFF;
-	len >>= 8;
-	c->opcode[7] = len & 0xFF;
-	len >>= 8;
-	c->opcode[6] = len & 0xFF;
+	len_shift = len;
+	c->opcode[8] = len_shift & 0xFF;
+	len_shift >>= 8;
+	c->opcode[7] = len_shift & 0xFF;
+	len_shift >>= 8;
+	c->opcode[6] = len_shift & 0xFF;
 	req = main_ch & 0xf8;
 
 #ifdef Libburn_mmc_report_recovereD
