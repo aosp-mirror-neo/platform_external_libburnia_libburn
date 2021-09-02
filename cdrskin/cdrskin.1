@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH CDRSKIN 1 "Version 1.5.5, Jan 30, 2021"
+.TH CDRSKIN 1 "Version 1.5.5, Jun 29, 2021"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -1087,11 +1087,11 @@ This directory has to already exist, but none of the track files may exist.
 This option will rather fail than overwrite an existing file.
 .br
 By default all tracks of the CD are extracted to files with names
-trackNN.wav, where NN is the track number from 01 to at most 99.
+NN.wav, where NN is the track number from 01 to at most 99.
 .TP
 .BI extract_basename= name
-Set a filename which shall be used by extract_audio_to= instead of the default
-name "track".
+Set a filename prefix which shall be used by extract_audio_to= instead of the
+empty default name prefix.
 .TP
 .BI --extract_dap
 Enable Digital Audio Play flaw obscuring mechanisms
