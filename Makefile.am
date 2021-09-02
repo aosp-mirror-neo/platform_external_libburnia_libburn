@@ -201,6 +201,7 @@ EXTRA_DIST = \
 	doc/cookbook.txt \
 	doc/mediainfo.txt \
 	doc/cdtext.txt \
+	doc/waveformat.txt \
 	README \
 	AUTHORS \
 	CONTRIBUTORS \
