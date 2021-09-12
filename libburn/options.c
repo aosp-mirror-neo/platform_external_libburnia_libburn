@@ -55,6 +55,7 @@ struct burn_write_opts *burn_write_opts_new(struct burn_drive *drive)
 	opts->obs_pad = 0;
 #endif
 
+	opts->bdr_obs_exempt = 0;
 	opts->start_byte = -1;
 	opts->fill_up_media = 0;
 	opts->force_is_set = 0;
@@ -532,6 +533,14 @@ void burn_write_opts_set_dvd_obs(struct burn_write_opts *opts, int obs)
 void burn_write_opts_set_obs_pad(struct burn_write_opts *opts, int pad)
 {
 	opts->obs_pad = 2 * !!pad;
+}
+
+
+/* ts C10909: API */
+void burn_write_opts_set_bdr_obs_exempt(struct burn_write_opts *opts,
+					int value)
+{
+	opts->bdr_obs_exempt = !!value;
 }
 
 

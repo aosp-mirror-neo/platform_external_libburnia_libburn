@@ -3389,6 +3389,21 @@ void burn_write_opts_set_dvd_obs(struct burn_write_opts *opts, int obs);
 void burn_write_opts_set_obs_pad(struct burn_write_opts *opts, int pad);
 
 
+/* ts C10909 */
+/** Exempts BD-R media from the elsewise unavoidable automatic padding of the
+    last write chunk to its full size.
+    Even if this exempt is granted it gets into effect only if stream recording
+    is disabled and burn_write_opts_set_obs_pad() is set to 0.
+    @param opts The write opts to change
+    @param value  1= possibly exempt BD-R from end chunk padding.
+                  0= always act on BD-R as if
+                     burn_write_opts_set_obs_pad(opts, 1) is in effect.
+    @since 1.5.6
+*/
+void burn_write_opts_set_bdr_obs_exempt(struct burn_write_opts *opts,
+                                        int value);
+
+
 /* ts A91115 */
 /** Sets the rhythm by which stdio pseudo drives force their output data to
     be consumed by the receiving storage device. This forcing keeps the memory

@@ -46,6 +46,9 @@ struct burn_write_opts
 	                2 indicates burn_write_opts_set_obs_pad(,1)
 	             */
 
+	/* 1= do not apply obs_pad=1 to BD-R if not stream recording. */
+	int bdr_obs_exempt;
+
 	/* ts A61222 : Start address for media which offer a choice */
 	off_t start_byte;
 

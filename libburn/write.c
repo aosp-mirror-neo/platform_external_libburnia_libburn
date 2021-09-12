@@ -1658,16 +1658,6 @@ int burn_disc_open_track_dvd_plus_r(struct burn_write_opts *o,
 				size += (off_t) (o->obs - (size % o->obs));
 		}
 
-		/* <<< Only for now until the first DVD+R succeeded */
-		if (!o->obs_pad) {
-			sprintf(msg, "Program error: encountered DVD+R without chunk padding");
-			libdax_msgs_submit(libdax_messenger, d->global_index,
-				0x00000004,
-				LIBDAX_MSGS_SEV_FATAL, LIBDAX_MSGS_PRIO_HIGH,
-				msg, 0, 0);
-			{ret = 0; goto ex;}
-		}
-
 		ret = d->reserve_track(d, size);
 		if (ret <= 0) {
 			sprintf(msg, "Cannot reserve track of %.f bytes",
@@ -2436,9 +2426,17 @@ int burn_dvd_write_sync(struct burn_write_opts *o,
 				msg, 0, 0);
 			goto early_failure;
 		}
-		/* ??? padding needed ??? cowardly doing it for now */
-		if (o->obs_pad < 2)
+		/* Unaligned BD-R track end works with various drives and
+		   produces exact READ CAPACITY results.
+		   Nevertheless stream recording hates unaligned WRITE.
+		   With DVD+R it seems that obs_pad is silently applied by the
+		   drive if a non-aligned final WRITE is received.
+		*/
+		if (o->obs_pad < 2 &&
+		    !(d->current_profile == 0x41 && !d->do_stream_recording &&
+		      o->bdr_obs_exempt))
 			o->obs_pad = 1; /* fill-up track's last obs buffer */
+
 		if (d->current_profile == 0x41) /* BD-R */
 			o->obs = Libburn_bd_r_obS;
 		if (d->do_stream_recording) {
