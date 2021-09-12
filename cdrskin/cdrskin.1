@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH CDRSKIN 1 "Version 1.5.5, Jun 29, 2021"
+.TH CDRSKIN 1 "Version 1.5.5, Sep 12, 2021"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -1640,15 +1640,26 @@ addresses which are not listed with cdrskin --devices but nevertheless point
 to a usable drive. (Like /dev/sg0 using the same SCSI address as /dev/sr0.)
 .TP
 .BI \--obs_pad
-Pad the data of last write operation of a DVD-R[W] DAO session or
-stdio: pseudo-drive up to the full size of an output chunk.
+Pad the data of the last write operation of a DVD-R[W] DAO session, or BD-R
+session, or stdio: pseudo-drive session up to the full size of an output chunk.
 This padding has to be applied automatically to the other DVD and BD media
 types, where it causes e.g. ISO images to have trailing unclaimed blocks.
+Whether it is applied automatically to BD-R depends on option
+--bdr_obs_exempt.
 .br
-Use this option if there is the suspicion that DAO sessions abort with
-your kernel and/or DVD drive, if their size is not a multiple of 16 blocks.
+Use this option if there is the suspicion that DVD-R[W] DAO or BD-R sessions 
+abort with your kernel and/or DVD drive, if their size is not a multiple of 
+16 blocks.
 .br
 This option may also get enabled at compile time of libburn.
+.TP
+.BI \--bdr_obs_exempt
+Exempt BD-R media from automatic unconditional transaction end padding,
+provided that this padding is not requested by --obs_pad and that
+no stream_recording is requested.
+.br
+This is a new feature introduced with version 1.5.6. It might become default
+in later versions.
 .TP
 .BI \--old_pseudo_scsi_adr
 Linux specific:

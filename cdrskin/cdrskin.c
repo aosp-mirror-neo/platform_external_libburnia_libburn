@@ -2914,6 +2914,8 @@ set_dev:;
      printf(
          " --no_rc            as first argument: do not read startup files\n");
      printf(" --obs_pad          pad DVD DAO to full 16 or 32 blocks\n");
+     printf(
+        " --bdr_obs_exempt   possibly exempt BD-R from padding to full 64k\n");
      printf(" --old_pseudo_scsi_adr  use and report literal Bus,Target,Lun\n");
      printf("                    rather than real SCSI and pseudo ATA.\n");
      printf(
@@ -3391,6 +3393,9 @@ struct CdrskiN {
  int stream_recording_is_set; /* see burn_write_opts_set_stream_recording() */
  int dvd_obs;                 /* DVD write chunk size: 0, 32k or 64k */
  int obs_pad;                 /* Whether to force obs end padding */
+ int bdr_obs_exempt;          /* Whether to possibly exempt BD-R from automatic
+                                 obs_pad
+                               */
  int stdio_sync;              /* stdio fsync interval: -1, 0, >=32 */
  int single_track;
  int prodvd_cli_compatible;
@@ -3665,6 +3670,7 @@ int Cdrskin_new(struct CdrskiN **skin, struct CdrpreskiN *preskin, int flag)
  o->stream_recording_is_set= 0;
  o->dvd_obs= 0;
  o->obs_pad= 0;
+ o->bdr_obs_exempt= 0;
  o->stdio_sync= 0;
  o->single_track= 0;
  o->prodvd_cli_compatible= 0;
@@ -7697,6 +7703,7 @@ burn_failed:;
 #endif
    burn_write_opts_set_dvd_obs(o, skin->dvd_obs);
  burn_write_opts_set_obs_pad(o, skin->obs_pad);
+ burn_write_opts_set_bdr_obs_exempt(o, skin->bdr_obs_exempt);
  burn_write_opts_set_stdio_fsync(o, skin->stdio_sync);
 
  if(skin->dummy_mode) {
@@ -9168,6 +9175,9 @@ msifile_equals:;
 
    } else if(strcmp(argv[i],"--obs_pad")==0) {
      skin->obs_pad= 1;
+
+   } else if(strcmp(argv[i],"--bdr_obs_exempt")==0) {
+     skin->bdr_obs_exempt= 1;
 
    } else if(strcmp(argv[i],"--old_pseudo_scsi_adr")==0) {
      /* is handled in Cdrpreskin_setup() */;
