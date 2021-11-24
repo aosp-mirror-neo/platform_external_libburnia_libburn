@@ -963,7 +963,8 @@ fprintf(stderr, "libburn_DEBUG: buffer sectors= %d  bytes= %d\n",
 		return BE_CANCELLED;
 
 	/* ts A70215 */
-	if (d->media_lba_limit > 0 && start >= d->media_lba_limit) {
+	if (d->media_lba_limit > 0 && start >= d->media_lba_limit &&
+	    !d->write_opts->force_is_set) {
 
 		msg = calloc(1, 320);
 		if (msg != NULL) {

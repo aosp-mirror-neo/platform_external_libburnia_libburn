@@ -3337,9 +3337,13 @@ void burn_write_opts_set_fillup(struct burn_write_opts *opts,
 
 
 /* ts A70303 */
-/** Eventually makes libburn ignore the failure of some conformance checks:
+/** Lets libburn ignore the failure of some conformance checks:
     - the check whether CD write+block type is supported by the drive
     - the check whether the media profile supports simulated burning 
+    - @since 1.5.6
+      The check whether a write operation exceeds the size of the medium
+      as announced by the drive. This is known as "overburn" and may work
+      for a few thousand additional blocks on CD media with write type SAO.
     @param opts The write opts to change
     @param use_force 1=ignore above checks, 0=refuse work on failed check
     @since 0.3.4
