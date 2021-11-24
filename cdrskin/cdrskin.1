@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH CDRSKIN 1 "Version 1.5.5, Sep 12, 2021"
+.TH CDRSKIN 1 "Version 1.5.5, Nov 19, 2021"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -573,9 +573,14 @@ Eject the disc after work is done.
 .TP
 .BI \-force
 Assume that the user knows better in situations when cdrskin or libburn are
-insecure about drive or media state. This includes the attempt to blank
+refusing because of concerns about drive or media state.
+.br
+.B Caution:
+Use option -force only when in urgent need. 
+.br
+This option enables the attempt to blank
 media which are classified as unknown or unsuitable, and the attempt to use
-write modes which libburn believes they are not supported by the drive.
+write modes of which libburn believes they are not supported by the drive.
 .br
 Another application is to enforce blanking or re-formatting of media
 which appear to be in the desired blank or format state already.
@@ -584,10 +589,22 @@ This option enables a burn run with option -dummy even if libburn believes
 that drive and media will not simulate the write mode but will write for real.
 .br
 It enables a burn run where cdrskin expects to exceed the available media
-capacity.
+capacity. This is known as "overburn" and might succeed on CD media with
+write type SAO.
+.B Too much overburning
+might be
+.B harmful to the medium
+and might
+.B make the drive unusable
+(hopefully only until it gets powered off and on). The man page of cdrecord
+mentions 88 seconds = 6600 blocks as halfways safe amount over the official
+medium capacity. The assessment of track sizes by libburn will be wrong if
+the written size reaches or exceeds 90 minutes = 405000 sectors. The overall
+medium size assessment by the Linux kernel is supposed to yield roughly the
+written size, but you should test this yourself with every overburnt medium.
 .br
-.B Caution:
-Use this only when in urgent need.
+First consider to use a medium with more capacity rather than trying to
+overburn a CD.
 .TP
 .BI \-format
 Same as blank=format_overwrite_full -force but restricted to DVD+RW.
