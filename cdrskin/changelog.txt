@@ -14126,23 +14126,81 @@ cdrskin/README
 cdrskin/cdrskin_timestamp.h
 Made number transition to 1.5.5
 
-  []
+2021.02.28.121708  [2a977cf]
+libburn/libdax_msgs.h
+libburn/structure.c
+libburn/write.c
+libburn/sector.c
+Improved error message if a track is larger than 4 TiB - 32 KiB
+
+2021.02.28.121943  [31e8f5c]
+libburn/transport.h
+libburn/drive.h
+libburn/drive.c
+Unified size of large or unlimited pseudo drives to 4 TiB - 32 KiB
+
+2021.03.12.082731  [892df64]
+acinclude.m4
+Made optional the use of libcam and thus SCSI passthrough on GNU/FreeBSD systems
+
+02 Sep 2021  [8d270b1]
+configure.ac
+Removed unneeded configure.ac macro AC_C_BIGENDIAN
+
+02 Sep 2021  [c76145f]
+cdrskin/cdrskin.1
+Corrected man page about the default of extract_basename=
+
+02 Sep 2021  [0a1bbb1]
+Makefile.am
+Added doc/waveformat.txt to libburn tarball
+
+2021.09.02.181259  [27e1568]
+libburn/mmc.c
+Let mmc_read_cd() for CD-DA set command.dxfer_len
+
+2021.09.12.084139  [31591b8]
+libburn/libburn.h
+libburn/options.h
+libburn/options.c
+libburn/write.c
+libburn/libburn.ver
+New API call burn_write_opts_set_bdr_obs_exempt()
+
+2021.09.12.084556  [da44c70]
+cdrskin/cdrskin.c
+cdrskin/cdrskin.1
+New cdrskin option --bdr_obs_exempt
+
+2021.11.24.114417  [7765fbd]
+libburn/libburn.h
+libburn/mmc.c
+Enabled overburning with burn_write_opts_set_force(,1)
+
+24 Nov 2021  [d4d6321]
+cdrskin/cdrskin.1
+Improved man page of cdrskin about -force after enabling overburning in libburn
+
+25 Nov 2021  []
 ChangeLog
+cdrskin/cdrskin_eng.html
 cdrskin/changelog.txt
 Updated change log
+
+------------------------------------ cycle  - cdrskin-1.5.5 - 
+* New API call burn_write_opts_set_bdr_obs_exempt()
+* New cdrskin option --bdr_obs_exempt
+* Enabled overburning with burn_write_opts_set_force(,1)
+* Bug fix: Overburning with cdrskin option -force ended by a libburn error
+
 
   []
 libburn/cleanup.c
 >>> SIGCONT in non_signal_list : local but not in git
 
 
-  []
-ChangeLog
-cdrskin/cdrskin_eng.html
-cdrskin/changelog.txt
-Updated change log
 
------------------------------------- cycle  - cdrskin-1.5.3 - 
+------------------------------------ cycle  - cdrskin-1.5.5 - 
 
 (((
   []

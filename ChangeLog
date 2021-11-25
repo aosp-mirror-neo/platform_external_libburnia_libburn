@@ -1,7 +1,10 @@
 git clone git@dev.lovelyhq.com:libburnia/libburn.git
 (to become libburn-1.5.6 or higher)
 ===============================================================================
-- no novelties yet -
+* New API call burn_write_opts_set_bdr_obs_exempt()
+* New cdrskin option --bdr_obs_exempt
+* Enabled overburning with burn_write_opts_set_force(,1)
+* Bug fix: Overburning with cdrskin option -force ended by a libburn error
 
 
 libburn-1.5.4.tar.gz Sat Jan 30 2021
