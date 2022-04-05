@@ -3154,7 +3154,8 @@ see_cdrskin_eng_html:;
    } else if(strncmp(argpt ,"textfile_to_v07t=", 17) == 0) {
      o->do_not_scan= 1;
 
-   } else if(strcmp(argv[i],"-V")==0 || strcmp(argpt, "-Verbose") == 0) {
+   } else if(strcmp(argv[i],"-V")==0 || strcmp(argpt, "-Verbose") == 0 ||
+             strcmp(argv[i],"-VV")==0 || strcmp(argpt, "-VVV") == 0) {
      burn_set_scsi_logging(2 | 4); /* log SCSI to stderr */
 
    } else if(strcmp(argv[i],"-v")==0 || strcmp(argpt, "-verbose") == 0) {
@@ -9406,7 +9407,8 @@ track_too_large:;
        return(0);
      }
 
-   } else if(strcmp(argv[i],"-V")==0 || strcmp(argpt, "-Verbose")==0) {
+   } else if(strcmp(argv[i],"-V") == 0 || strcmp(argpt, "-Verbose") == 0 ||
+             strcmp(argv[i],"-VV") == 0 || strcmp(argpt, "-VVV") == 0) {
      /* is handled in Cdrpreskin_setup() */;
    } else if(strcmp(argv[i],"-v")==0 || strcmp(argpt,"-verbose")==0) {
      /* is handled in Cdrpreskin_setup() */;
