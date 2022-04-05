@@ -1,6 +1,6 @@
 
 /*
- cdrskin.c , Copyright 2006-2021 Thomas Schmitt <scdbackup@gmx.net>
+ cdrskin.c , Copyright 2006-2022 Thomas Schmitt <scdbackup@gmx.net>
 Provided under GPL version 2 or later.
 
 A cdrecord compatible command line interface for libburn.
@@ -3176,7 +3176,7 @@ set_severities:;
      int major, minor, micro;
 
      printf(
-"Cdrecord 2.01a27 Emulation. Copyright (C) 2006-2021, see libburnia-project.org\n");
+"Cdrecord 2.01a27 Emulation. Copyright (C) 2006-2022, see libburnia-project.org\n");
      if(o->fallback_program[0]) {
        char *hargv[2];
 
