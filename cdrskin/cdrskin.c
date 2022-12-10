@@ -3343,7 +3343,8 @@ ex:;
 */
 
 
-#define Cdrskin_tracksize_maX 1024.0*1024.0*1024.0*1024.0
+/* 4 TiB - 32 KiB : The libburn API works with int rather than uint32_t */
+#define Cdrskin_tracksize_maX 4398046478336.0
 
 
 /* Some constants obtained by hearsay and experiments */
