@@ -67,7 +67,7 @@ with drives connected via SCSI, PATA (aka IDE, ATA), USB, or SATA.
 GPL software included:<BR>
 </H2>
 <DL>
-<DT>libburn-1.5.4</DT>
+<DT>libburn-1.5.6</DT>
 <DD>(founded by Derek Foreman and Ben Jansens,
 developed and maintained since August 2006 by
 Thomas Schmitt from team of libburnia-project.org)
@@ -202,13 +202,13 @@ Standalone ISO 9660 multi-session CD/DVD/BD tool
 <P>
 <DL>
 <DT>Download as source code (see README):</DT>
-<DD><A HREF="cdrskin-1.5.4.tar.gz">cdrskin-1.5.4.tar.gz</A>
+<DD><A HREF="cdrskin-1.5.6.tar.gz">cdrskin-1.5.6.tar.gz</A>
 (1075 KB).
 </DD>
-<DD><A HREF="cdrskin-1.5.4.tar.gz.sig">cdrskin-1.5.4.tar.gz.sig</A></DD>
+<DD><A HREF="cdrskin-1.5.6.tar.gz.sig">cdrskin-1.5.6.tar.gz.sig</A></DD>
 <DD>
 (detached GPG signature for verification by
-<KBD>gpg --verify cdrskin-1.5.4.tar.gz.sig cdrskin-1.5.4.tar.gz</KBD>
+<KBD>gpg --verify cdrskin-1.5.6.tar.gz.sig cdrskin-1.5.6.tar.gz</KBD>
 <BR>
 after <KBD>gpg --keyserver keys.gnupg.net --recv-keys ABC0A854</KBD>).
 </DD>
@@ -259,26 +259,18 @@ cdrskin_0.4.2.pl00-x86-suse9_0-static.tar.gz</A>, (310 KB), -static compiled,
 <HR>
 
 <P>
-Enhancements towards previous stable version cdrskin-1.5.2:
+Enhancements towards previous stable version cdrskin-1.5.4:
 <UL>
-<LI>none</LI>
+<LI>New cdrskin option --bdr_obs_exempt</LI>
+<LI>Officially enabled overburning on CD media</LI>
 <!--
 <LI>none</LI>
 -->
 </UL>
 
-Bug fixes towards cdrskin-1.5.2.pl01:
+Bug fixes towards cdrskin-1.5.4:
 <UL>
-<LI>
-Early SCSI commands from sg-linux.c were not logged
-</LI>
-</UL>
-Bug fixes towards cdrskin-1.5.2 (without .pl01):
-<UL>
-<LI>
-cdrskin multi-track burning was slow and stalled after track 1.
-Regression introduced in version 1.5.0 by commit 84fad99, 2018.02.05
-</LI>
+<LI>Overburning with cdrskin option -force ended by a libburn error</LI>
 </UL>
 <!--
 -->
@@ -287,17 +279,17 @@ Regression introduced in version 1.5.0 by commit 84fad99, 2018.02.05
 
 <P>
 <DL>
-<DT><H3>Development snapshot, version 1.5.5 :</H3></DT>
-<DD>Enhancements towards current stable version 1.5.4:
+<DT><H3>Development snapshot, version 1.5.7 :</H3></DT>
+<DD>Enhancements towards current stable version 1.5.6:
 <UL>
-<LI>New cdrskin option --bdr_obs_exempt</LI>
+<LI>none yet</LI>
 <!--
 <LI>none yet</LI>
 -->
 </UL>
-Bug fixes towards cdrskin-1.5.4:
+Bug fixes towards cdrskin-1.5.6:
 <UL>
-<LI>Overburning with cdrskin option -force ended by a libburn error</LI>
+<LI>none yet</LI>
 <!--
 <LI>none yet</LI>
 -->
@@ -305,10 +297,10 @@ Bug fixes towards cdrskin-1.5.4:
 </DD>
 
 <DD>&nbsp;</DD>
-<DD><A HREF="README_cdrskin_devel">README 1.5.5</A>
-<DD><A HREF="cdrskin__help_devel">cdrskin-1.5.5 --help</A></DD>
-<DD><A HREF="cdrskin_help_devel">cdrskin-1.5.5 -help</A></DD>
-<DD><A HREF="man_1_cdrskin_devel.html">man cdrskin (as of 1.5.5)</A></DD>
+<DD><A HREF="README_cdrskin_devel">README 1.5.7</A>
+<DD><A HREF="cdrskin__help_devel">cdrskin-1.5.7 --help</A></DD>
+<DD><A HREF="cdrskin_help_devel">cdrskin-1.5.7 -help</A></DD>
+<DD><A HREF="man_1_cdrskin_devel.html">man cdrskin (as of 1.5.7)</A></DD>
 <DD>&nbsp;</DD>
 <DT>Maintainers of cdrskin unstable packages please use SVN of
 <A HREF="http://libburnia-project.org"> libburnia-project.org</A></DT>
@@ -328,7 +320,7 @@ admins with full system sovereignty.</DT>
 <A HREF="README_cdrskin_devel">upcoming README</A> ):
 </DD>
 <DD>
-<A HREF="cdrskin-1.5.5.tar.gz">cdrskin-1.5.5.tar.gz</A>
+<A HREF="cdrskin-1.5.6.tar.gz">cdrskin-1.5.6.tar.gz</A>
 (1075 KB).
 </DD>
 
