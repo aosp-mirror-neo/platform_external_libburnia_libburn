@@ -1,0 +1,16 @@
+name: "libburn"
+description:
+    "Library for building xorriso to generate ISO9600 image."
+
+third_party {
+homepage: "https://libburnia-project.org/"
+  identifier {
+    type: "Git"
+    value: "https://dev.lovelyhq.com/libburnia/libburn"
+    primary_source: true
+    version: "release-1.5.6"
+  }
+  version: "release-1.5.6"
+  last_upgrade_date { year: 2025 month: 8 day: 12 }
+  license_type: RESTRICTED
+}
