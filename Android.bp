@@ -60,5 +60,6 @@ cc_library_host_static {
         "libburn/write.c",
     ],
     export_include_dirs: ["."],
+    stl: "none",
     visibility: ["//external/libburnia:__subpackages__"],
 }
